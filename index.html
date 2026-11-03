@@ -1,724 +1,913 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" dir="ltr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Workplace Feud — Team Survey Game</title>
-<style>
-  /* ============================================================
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Workplace Feud — Team Survey Game</title>
+    <style>
+      /* ============================================================
      DESIGN TOKENS
      ============================================================ */
-  :root{
-    --font-display:'Sora', 'Segoe UI', sans-serif;
-    --font-body:'Inter', 'Segoe UI', sans-serif;
+      :root {
+        --font-display: "Sora", "Segoe UI", sans-serif;
+        --font-body: "Inter", "Segoe UI", sans-serif;
 
-    --radius-lg:20px;
-    --radius-md:14px;
-    --radius-sm:8px;
+        --radius-lg: 20px;
+        --radius-md: 14px;
+        --radius-sm: 8px;
 
-    --amber:#E9B44C;
-    --amber-dim:#c99a3a;
-    --success:#3FB27F;
-    --danger:#E05B5B;
+        --amber: #e9b44c;
+        --amber-dim: #c99a3a;
+        --success: #3fb27f;
+        --danger: #e05b5b;
 
-    --shadow-soft:0 10px 30px rgba(0,0,0,0.18);
-    --shadow-strong:0 20px 50px rgba(0,0,0,0.35);
-  }
+        --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.18);
+        --shadow-strong: 0 20px 50px rgba(0, 0, 0, 0.35);
+      }
 
-  body.light{
-    --bg:#F3F4F7;
-    --bg-alt:#FFFFFF;
-    --surface:#FFFFFF;
-    --surface-alt:#EDEFF3;
-    --text:#171A21;
-    --text-dim:#5B616E;
-    --border:#DEE1E8;
-    --header-grad:linear-gradient(135deg,#171A21 0%,#2B3245 100%);
-  }
-  body.dark{
-    --bg:#0F1117;
-    --bg-alt:#161923;
-    --surface:#1B1F2B;
-    --surface-alt:#20242F;
-    --text:#F3F4F7;
-    --text-dim:#9BA0B0;
-    --border:#2B3040;
-    --header-grad:linear-gradient(135deg,#0F1117 0%,#232840 100%);
-  }
+      body.light {
+        --bg: #f3f4f7;
+        --bg-alt: #ffffff;
+        --surface: #ffffff;
+        --surface-alt: #edeff3;
+        --text: #171a21;
+        --text-dim: #5b616e;
+        --border: #dee1e8;
+        --header-grad: linear-gradient(135deg, #171a21 0%, #2b3245 100%);
+      }
+      body.dark {
+        --bg: #0f1117;
+        --bg-alt: #161923;
+        --surface: #1b1f2b;
+        --surface-alt: #20242f;
+        --text: #f3f4f7;
+        --text-dim: #9ba0b0;
+        --border: #2b3040;
+        --header-grad: linear-gradient(135deg, #0f1117 0%, #232840 100%);
+      }
 
-  *{ box-sizing:border-box; }
-  html,body{ height:100%; }
-  body{
-    margin:0;
-    font-family:var(--font-body);
-    background:var(--bg);
-    color:var(--text);
-    transition:background .3s ease, color .3s ease;
-    min-height:100vh;
-  }
-  h1,h2,h3{ font-family:var(--font-display); margin:0; letter-spacing:-0.01em; }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: var(--font-body);
+        background: var(--bg);
+        color: var(--text);
+        transition:
+          background 0.3s ease,
+          color 0.3s ease;
+        min-height: 100vh;
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: var(--font-display);
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
 
-  .screen{ display:none; min-height:100vh; }
-  .screen.active{ display:flex; flex-direction:column; }
+      .screen {
+        display: none;
+        min-height: 100vh;
+      }
+      .screen.active {
+        display: flex;
+        flex-direction: column;
+      }
 
-  button{
-    font-family:var(--font-body);
-    cursor:pointer;
-    border:none;
-    outline:none;
-  }
-  input[type="text"]{
-    font-family:var(--font-body);
-  }
+      button {
+        font-family: var(--font-body);
+        cursor: pointer;
+        border: none;
+        outline: none;
+      }
+      input[type="text"] {
+        font-family: var(--font-body);
+      }
 
-  ::selection{ background:var(--amber); color:#171A21; }
+      ::selection {
+        background: var(--amber);
+        color: #171a21;
+      }
 
-  /* ============================================================
+      /* ============================================================
      TOP UTILITY BAR (mode toggle / fullscreen)
      ============================================================ */
-  .util-bar{
-    position:fixed;
-    top:14px;
-    right:14px;
-    display:flex;
-    gap:8px;
-    z-index:500;
-  }
-  .util-btn{
-    width:40px;height:40px;
-    border-radius:50%;
-    background:var(--surface);
-    border:1px solid var(--border);
-    display:flex;align-items:center;justify-content:center;
-    font-size:18px;
-    box-shadow:var(--shadow-soft);
-    transition:transform .15s ease;
-    color:var(--text);
-  }
-  .util-btn:hover{ transform:translateY(-2px) scale(1.05); }
+      .util-bar {
+        position: fixed;
+        top: 14px;
+        right: 14px;
+        display: flex;
+        gap: 8px;
+        z-index: 500;
+      }
+      .util-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        box-shadow: var(--shadow-soft);
+        transition: transform 0.15s ease;
+        color: var(--text);
+      }
+      .util-btn:hover {
+        transform: translateY(-2px) scale(1.05);
+      }
 
-  /* ============================================================
+      /* ============================================================
      SETUP SCREEN
      ============================================================ */
-  #setup-screen{
-    align-items:center;
-    justify-content:center;
-    padding:40px 20px;
-    background:
-      radial-gradient(circle at 15% 20%, rgba(233,180,76,0.08), transparent 45%),
-      radial-gradient(circle at 85% 80%, rgba(63,178,127,0.08), transparent 45%);
-  }
-  .setup-card{
-    width:100%;
-    max-width:560px;
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius-lg);
-    padding:40px;
-    box-shadow:var(--shadow-strong);
-  }
-  .setup-eyebrow{
-    font-size:12px;
-    letter-spacing:.16em;
-    text-transform:uppercase;
-    color:var(--amber);
-    font-weight:700;
-    margin-bottom:8px;
-  }
-  .setup-title{
-    font-size:32px;
-    font-weight:700;
-    margin-bottom:6px;
-  }
-  .setup-sub{
-    color:var(--text-dim);
-    font-size:14px;
-    margin-bottom:28px;
-  }
-  .team-row{
-    display:flex;
-    gap:12px;
-    align-items:center;
-    margin-bottom:16px;
-  }
-  .team-row input[type="text"]{
-    flex:1;
-    padding:12px 14px;
-    border-radius:var(--radius-sm);
-    border:1px solid var(--border);
-    background:var(--surface-alt);
-    color:var(--text);
-    font-size:15px;
-  }
-  .team-row input[type="color"]{
-    width:46px;height:46px;
-    border-radius:var(--radius-sm);
-    border:1px solid var(--border);
-    background:none;
-    padding:2px;
-  }
-  .field-label{
-    font-size:12px;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:.08em;
-    color:var(--text-dim);
-    margin:20px 0 8px;
-  }
-  .mode-toggle-row{
-    display:flex;
-    gap:10px;
-    margin-bottom:8px;
-  }
-  .mode-choice{
-    flex:1;
-    padding:12px;
-    border-radius:var(--radius-sm);
-    border:1px solid var(--border);
-    background:var(--surface-alt);
-    color:var(--text);
-    font-weight:600;
-    font-size:14px;
-    transition:all .15s ease;
-  }
-  .mode-choice.selected{
-    background:var(--amber);
-    color:#171A21;
-    border-color:var(--amber);
-  }
-  .start-btn{
-    width:100%;
-    margin-top:28px;
-    padding:16px;
-    border-radius:var(--radius-md);
-    background:var(--amber);
-    color:#171A21;
-    font-size:16px;
-    font-weight:800;
-    letter-spacing:.02em;
-    box-shadow:0 10px 24px rgba(233,180,76,0.35);
-    transition:transform .15s ease, box-shadow .15s ease;
-  }
-  .start-btn:hover{ transform:translateY(-2px); box-shadow:0 14px 28px rgba(233,180,76,0.45); }
-  .start-btn:disabled{ opacity:.5; cursor:not-allowed; transform:none; }
+      #setup-screen {
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        background:
+          radial-gradient(
+            circle at 15% 20%,
+            rgba(233, 180, 76, 0.08),
+            transparent 45%
+          ),
+          radial-gradient(
+            circle at 85% 80%,
+            rgba(63, 178, 127, 0.08),
+            transparent 45%
+          );
+      }
+      .setup-card {
+        width: 100%;
+        max-width: 560px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 40px;
+        box-shadow: var(--shadow-strong);
+      }
+      .setup-eyebrow {
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--amber);
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .setup-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+      .setup-sub {
+        color: var(--text-dim);
+        font-size: 14px;
+        margin-bottom: 28px;
+      }
+      .team-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .team-row input[type="text"] {
+        flex: 1;
+        padding: 12px 14px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--surface-alt);
+        color: var(--text);
+        font-size: 15px;
+      }
+      .team-row input[type="color"] {
+        width: 46px;
+        height: 46px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: none;
+        padding: 2px;
+      }
+      .field-label {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-dim);
+        margin: 20px 0 8px;
+      }
+      .mode-toggle-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+      .mode-choice {
+        flex: 1;
+        padding: 12px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+        background: var(--surface-alt);
+        color: var(--text);
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.15s ease;
+      }
+      .mode-choice.selected {
+        background: var(--amber);
+        color: #171a21;
+        border-color: var(--amber);
+      }
+      .start-btn {
+        width: 100%;
+        margin-top: 28px;
+        padding: 16px;
+        border-radius: var(--radius-md);
+        background: var(--amber);
+        color: #171a21;
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        box-shadow: 0 10px 24px rgba(233, 180, 76, 0.35);
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+      .start-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px rgba(233, 180, 76, 0.45);
+      }
+      .start-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
 
-  /* ============================================================
+      /* ============================================================
      GAME SCREEN
      ============================================================ */
-  #game-screen{
-    padding-bottom:40px;
-  }
-  .game-header{
-    background:var(--header-grad);
-    color:#fff;
-    padding:18px 24px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    flex-wrap:wrap;
-    gap:14px;
-  }
-  .round-badge{
-    display:flex;
-    flex-direction:column;
-    gap:2px;
-  }
-  .round-badge .rb-eyebrow{
-    font-size:11px;
-    text-transform:uppercase;
-    letter-spacing:.14em;
-    color:var(--amber);
-    font-weight:700;
-  }
-  .round-badge .rb-title{
-    font-size:20px;
-    font-weight:700;
-    font-family:var(--font-display);
-  }
-  .scoreboard{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-  }
-  .score-pill{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.15);
-    border-radius:999px;
-    padding:8px 16px;
-  }
-  .score-dot{
-    width:12px;height:12px;border-radius:50%;
-    box-shadow:0 0 0 3px rgba(255,255,255,0.12);
-  }
-  .score-name{ font-size:13px; font-weight:700; }
-  .score-num{ font-size:16px; font-weight:800; color:var(--amber); }
-  .score-sub{ font-size:11px; color:#c7cadb; }
-  .diffs-left{
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.15);
-    border-radius:999px;
-    padding:8px 16px;
-    font-size:13px;
-    font-weight:700;
-  }
+      #game-screen {
+        padding-bottom: 40px;
+      }
+      .game-header {
+        background: var(--header-grad);
+        color: #fff;
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+      .round-badge {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .round-badge .rb-eyebrow {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--amber);
+        font-weight: 700;
+      }
+      .round-badge .rb-title {
+        font-size: 20px;
+        font-weight: 700;
+        font-family: var(--font-display);
+      }
+      .scoreboard {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .score-pill {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 999px;
+        padding: 8px 16px;
+      }
+      .score-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12);
+      }
+      .score-name {
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .score-num {
+        font-size: 16px;
+        font-weight: 800;
+        color: var(--amber);
+      }
+      .score-sub {
+        font-size: 11px;
+        color: #c7cadb;
+      }
+      .diffs-left {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 999px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 700;
+      }
 
-  .game-controls{
-    display:flex;
-    gap:10px;
-    justify-content:center;
-    flex-wrap:wrap;
-    padding:18px 20px 6px;
-  }
-  .ctrl-btn{
-    padding:11px 20px;
-    border-radius:999px;
-    font-weight:700;
-    font-size:14px;
-    border:1px solid var(--border);
-    background:var(--surface);
-    color:var(--text);
-    box-shadow:var(--shadow-soft);
-    transition:transform .15s ease;
-  }
-  .ctrl-btn:hover{ transform:translateY(-2px); }
-  .ctrl-btn.primary{ background:var(--amber); color:#171A21; border-color:var(--amber); }
-  .ctrl-btn.danger{ background:var(--danger); color:#fff; border-color:var(--danger); }
+      .game-controls {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+        padding: 18px 20px 6px;
+      }
+      .ctrl-btn {
+        padding: 11px 20px;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 14px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        box-shadow: var(--shadow-soft);
+        transition: transform 0.15s ease;
+      }
+      .ctrl-btn:hover {
+        transform: translateY(-2px);
+      }
+      .ctrl-btn.primary {
+        background: var(--amber);
+        color: #171a21;
+        border-color: var(--amber);
+      }
+      .ctrl-btn.danger {
+        background: var(--danger);
+        color: #fff;
+        border-color: var(--danger);
+      }
 
-  .board-wrap{
-    display:flex;
-    gap:20px;
-    justify-content:center;
-    flex-wrap:wrap;
-    padding:20px;
-  }
-  .image-card{
-    position:relative;
-    width:min(86vw, 820px);
-    min-width:280px;
-    border-radius:var(--radius-md);
-    overflow:hidden;
-    border:1px solid var(--border);
-    box-shadow:var(--shadow-soft);
-    background:var(--surface);
-    cursor:default;
-    user-select:none;
-  }
-  .image-card img{
-    display:block;
-    width:100%;
-    height:auto;
-    pointer-events:none;
-    -webkit-user-drag:none;
-  }
-  .tile-grid{
-    position:absolute;
-    inset:0;
-    display:grid;
-    grid-template-columns:repeat(4, 1fr);
-    grid-template-rows:repeat(3, 1fr);
-  }
-  .cover-tile{
-    border:1px solid rgba(255,255,255,.22);
-    background:linear-gradient(135deg,#20283b,#39445f);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:rgba(255,255,255,.35);
-    font-size:30px;
-    font-weight:800;
-    transition:opacity .45s ease, transform .45s ease;
-  }
-  .cover-tile.revealed{
-    opacity:0;
-    transform:scale(.82);
-    pointer-events:none;
-  }
-  .clue-panel{
-    width:min(86vw,820px);
-    margin:0 auto 10px;
-    text-align:center;
-    padding:14px 18px;
-    border:1px solid var(--border);
-    border-radius:var(--radius-md);
-    background:var(--surface);
-    color:var(--text-dim);
-    font-weight:700;
-  }
-  .answer-reveal{
-    color:var(--text);
-    font-size:20px;
-  }
-  .feud-board{
-    width:min(92vw,900px);
-    margin:20px auto;
-    display:grid;
-    gap:10px;
-  }
-  .feud-question{
-    background:var(--header-grad);
-    color:#fff;
-    border:3px solid var(--amber);
-    border-radius:var(--radius-md);
-    padding:22px;
-    text-align:center;
-    font-size:clamp(20px,3vw,32px);
-    font-weight:800;
-    box-shadow:var(--shadow-strong);
-  }
-  .feud-answer{
-    min-height:58px;
-    display:grid;
-    grid-template-columns:58px 1fr 72px;
-    align-items:center;
-    overflow:hidden;
-    border-radius:var(--radius-sm);
-    border:2px solid #526080;
-    background:#182139;
-    color:#fff;
-    box-shadow:var(--shadow-soft);
-  }
-  .answer-rank,.answer-points{
-    height:100%;display:flex;align-items:center;justify-content:center;
-    background:#263453;font-size:22px;font-weight:900;
-  }
-  .answer-text{ padding:0 18px; font-size:18px; font-weight:800; }
-  .answer-points{ background:var(--amber);color:#171A21; }
-  .feud-answer:not(.revealed) .answer-text,
-  .feud-answer:not(.revealed) .answer-points{ color:transparent; }
-  .feud-answer:not(.revealed) .answer-text::after{
-    content:"SURVEY SAYS...";color:#6f7c9e;font-size:13px;letter-spacing:.12em;
-  }
-  .active-team-banner{
-    text-align:center;font-weight:900;font-size:18px;margin-top:14px;
-  }
-  .strike-display{
-    min-height:55px;text-align:center;color:var(--danger);font-size:42px;
-    font-weight:900;letter-spacing:10px;
-  }
-  .image-label{
-    position:absolute;
-    top:10px;
-    left:10px;
-    background:rgba(0,0,0,0.55);
-    color:#fff;
-    font-size:11px;
-    font-weight:700;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    padding:5px 10px;
-    border-radius:999px;
-  }
+      .board-wrap {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+        padding: 20px;
+      }
+      .image-card {
+        position: relative;
+        width: min(86vw, 820px);
+        min-width: 280px;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-soft);
+        background: var(--surface);
+        cursor: default;
+        user-select: none;
+      }
+      .image-card img {
+        display: block;
+        width: 100%;
+        height: auto;
+        pointer-events: none;
+        -webkit-user-drag: none;
+      }
+      .tile-grid {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+      }
+      .cover-tile {
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: linear-gradient(135deg, #20283b, #39445f);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.35);
+        font-size: 30px;
+        font-weight: 800;
+        transition:
+          opacity 0.45s ease,
+          transform 0.45s ease;
+      }
+      .cover-tile.revealed {
+        opacity: 0;
+        transform: scale(0.82);
+        pointer-events: none;
+      }
+      .clue-panel {
+        width: min(86vw, 820px);
+        margin: 0 auto 10px;
+        text-align: center;
+        padding: 14px 18px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--surface);
+        color: var(--text-dim);
+        font-weight: 700;
+      }
+      .answer-reveal {
+        color: var(--text);
+        font-size: 20px;
+      }
+      .feud-board {
+        width: min(92vw, 900px);
+        margin: 20px auto;
+        display: grid;
+        gap: 10px;
+      }
+      .feud-question {
+        background: var(--header-grad);
+        color: #fff;
+        border: 3px solid var(--amber);
+        border-radius: var(--radius-md);
+        padding: 22px;
+        text-align: center;
+        font-size: clamp(20px, 3vw, 32px);
+        font-weight: 800;
+        box-shadow: var(--shadow-strong);
+      }
+      .feud-answer {
+        min-height: 58px;
+        display: grid;
+        grid-template-columns: 58px 1fr 72px;
+        align-items: center;
+        overflow: hidden;
+        border-radius: var(--radius-sm);
+        border: 2px solid #526080;
+        background: #182139;
+        color: #fff;
+        box-shadow: var(--shadow-soft);
+      }
+      .answer-rank,
+      .answer-points {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #263453;
+        font-size: 22px;
+        font-weight: 900;
+      }
+      .answer-text {
+        padding: 0 18px;
+        font-size: 18px;
+        font-weight: 800;
+      }
+      .answer-points {
+        background: var(--amber);
+        color: #171a21;
+      }
+      .feud-answer:not(.revealed) .answer-text,
+      .feud-answer:not(.revealed) .answer-points {
+        color: transparent;
+      }
+      .feud-answer:not(.revealed) .answer-text {
+        font-size: 0; /* يلغي المساحة اللي ياخذها النص المخفي */
+        text-align: center;
+      }
+      .feud-answer:not(.revealed) .answer-text::after {
+        content: "SURVEY SAYS...";
+        color: #6f7c9e;
+        font-size: 13px; /* نرجّع الحجم للجملة بس */
+        letter-spacing: 0.12em;
+      }
+      .active-team-banner {
+        text-align: center;
+        font-weight: 900;
+        font-size: 18px;
+        margin-top: 14px;
+      }
+      .strike-display {
+        min-height: 55px;
+        text-align: center;
+        color: var(--danger);
+        font-size: 42px;
+        font-weight: 900;
+        letter-spacing: 10px;
+      }
+      .image-label {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.55);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 5px 10px;
+        border-radius: 999px;
+      }
 
-  .diff-marker{
-    position:absolute;
-    width:44px;
-    height:44px;
-    transform:translate(-50%,-50%);
-    border-radius:50%;
-    border:4px solid var(--amber);
-    box-shadow:0 0 0 3px rgba(0,0,0,0.25);
-    pointer-events:none;
-    animation:markerPop .35s ease;
-  }
-  .diff-marker.solution{
-    border-style:dashed;
-    border-color:#ff5c5c;
-    animation:none;
-  }
-  @keyframes markerPop{
-    0%{ transform:translate(-50%,-50%) scale(0); opacity:0; }
-    70%{ transform:translate(-50%,-50%) scale(1.15); opacity:1; }
-    100%{ transform:translate(-50%,-50%) scale(1); opacity:1; }
-  }
+      .diff-marker {
+        position: absolute;
+        width: 44px;
+        height: 44px;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        border: 4px solid var(--amber);
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.25);
+        pointer-events: none;
+        animation: markerPop 0.35s ease;
+      }
+      .diff-marker.solution {
+        border-style: dashed;
+        border-color: #ff5c5c;
+        animation: none;
+      }
+      @keyframes markerPop {
+        0% {
+          transform: translate(-50%, -50%) scale(0);
+          opacity: 0;
+        }
+        70% {
+          transform: translate(-50%, -50%) scale(1.15);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+        }
+      }
 
-  .wrong-flash{
-    position:absolute;
-    inset:0;
-    background:rgba(224,91,91,0.25);
-    animation:flashFade .4s ease forwards;
-    pointer-events:none;
-  }
-  @keyframes flashFade{
-    0%{ opacity:1; }
-    100%{ opacity:0; }
-  }
+      .wrong-flash {
+        position: absolute;
+        inset: 0;
+        background: rgba(224, 91, 91, 0.25);
+        animation: flashFade 0.4s ease forwards;
+        pointer-events: none;
+      }
+      @keyframes flashFade {
+        0% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
 
-  .catch-toast{
-    position:fixed;
-    top:90px;
-    left:50%;
-    transform:translateX(-50%) translateY(-20px);
-    background:var(--success);
-    color:#fff;
-    padding:14px 26px;
-    border-radius:999px;
-    font-weight:800;
-    font-size:15px;
-    box-shadow:var(--shadow-strong);
-    opacity:0;
-    z-index:600;
-    transition:all .3s ease;
-    pointer-events:none;
-  }
-  .catch-toast.show{
-    opacity:1;
-    transform:translateX(-50%) translateY(0);
-  }
+      .catch-toast {
+        position: fixed;
+        top: 90px;
+        left: 50%;
+        transform: translateX(-50%) translateY(-20px);
+        background: var(--success);
+        color: #fff;
+        padding: 14px 26px;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 15px;
+        box-shadow: var(--shadow-strong);
+        opacity: 0;
+        z-index: 600;
+        transition: all 0.3s ease;
+        pointer-events: none;
+      }
+      .catch-toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
 
-  /* ============================================================
+      /* ============================================================
      TEAM SELECT MODAL
      ============================================================ */
-  .modal-overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(10,11,16,0.6);
-    backdrop-filter:blur(3px);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    z-index:700;
-    padding:20px;
-  }
-  .modal-overlay.show{ display:flex; }
-  .modal-card{
-    background:var(--surface);
-    border-radius:var(--radius-lg);
-    padding:32px;
-    max-width:460px;
-    width:100%;
-    text-align:center;
-    box-shadow:var(--shadow-strong);
-    border:1px solid var(--border);
-  }
-  .modal-card h3{
-    font-size:22px;
-    margin-bottom:22px;
-  }
-  .team-pick-row{
-    display:flex;
-    gap:14px;
-  }
-  .team-pick-btn{
-    flex:1;
-    padding:22px 10px;
-    border-radius:var(--radius-md);
-    font-weight:800;
-    font-size:16px;
-    color:#fff;
-    box-shadow:var(--shadow-soft);
-    transition:transform .15s ease;
-    border:2px solid rgba(255,255,255,0.25);
-  }
-  .team-pick-btn:hover{ transform:translateY(-3px) scale(1.02); }
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(10, 11, 16, 0.6);
+        backdrop-filter: blur(3px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 700;
+        padding: 20px;
+      }
+      .modal-overlay.show {
+        display: flex;
+      }
+      .modal-card {
+        background: var(--surface);
+        border-radius: var(--radius-lg);
+        padding: 32px;
+        max-width: 460px;
+        width: 100%;
+        text-align: center;
+        box-shadow: var(--shadow-strong);
+        border: 1px solid var(--border);
+      }
+      .modal-card h3 {
+        font-size: 22px;
+        margin-bottom: 22px;
+      }
+      .team-pick-row {
+        display: flex;
+        gap: 14px;
+      }
+      .team-pick-btn {
+        flex: 1;
+        padding: 22px 10px;
+        border-radius: var(--radius-md);
+        font-weight: 800;
+        font-size: 16px;
+        color: #fff;
+        box-shadow: var(--shadow-soft);
+        transition: transform 0.15s ease;
+        border: 2px solid rgba(255, 255, 255, 0.25);
+      }
+      .team-pick-btn:hover {
+        transform: translateY(-3px) scale(1.02);
+      }
 
-  /* ============================================================
+      /* ============================================================
      ROUND RESULT / FINAL SCREEN
      ============================================================ */
-  #round-result-screen, #final-screen{
-    align-items:center;
-    justify-content:center;
-    padding:40px 20px;
-    text-align:center;
-    position:relative;
-    overflow:hidden;
-  }
-  .result-card{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius-lg);
-    padding:48px 40px;
-    max-width:560px;
-    width:100%;
-    box-shadow:var(--shadow-strong);
-    z-index:2;
-  }
-  .result-eyebrow{
-    font-size:12px;
-    letter-spacing:.16em;
-    text-transform:uppercase;
-    color:var(--amber);
-    font-weight:700;
-    margin-bottom:10px;
-  }
-  .result-winner{
-    font-size:34px;
-    font-weight:800;
-    margin-bottom:18px;
-    font-family:var(--font-display);
-  }
-  .result-scores{
-    display:flex;
-    justify-content:center;
-    gap:30px;
-    margin-bottom:26px;
-    flex-wrap:wrap;
-  }
-  .result-score-item{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:6px;
-  }
-  .result-score-item .rs-dot{
-    width:16px;height:16px;border-radius:50%;
-  }
-  .result-score-item .rs-num{ font-size:26px; font-weight:800; }
-  .result-score-item .rs-name{ font-size:13px; color:var(--text-dim); font-weight:700; }
+      #round-result-screen,
+      #final-screen {
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .result-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 48px 40px;
+        max-width: 560px;
+        width: 100%;
+        box-shadow: var(--shadow-strong);
+        z-index: 2;
+      }
+      .result-eyebrow {
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--amber);
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+      .result-winner {
+        font-size: 34px;
+        font-weight: 800;
+        margin-bottom: 18px;
+        font-family: var(--font-display);
+      }
+      .result-scores {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-bottom: 26px;
+        flex-wrap: wrap;
+      }
+      .result-score-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+      }
+      .result-score-item .rs-dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+      }
+      .result-score-item .rs-num {
+        font-size: 26px;
+        font-weight: 800;
+      }
+      .result-score-item .rs-name {
+        font-size: 13px;
+        color: var(--text-dim);
+        font-weight: 700;
+      }
 
-  .trophy-emoji{ font-size:64px; margin-bottom:10px; display:block; }
+      .trophy-emoji {
+        font-size: 64px;
+        margin-bottom: 10px;
+        display: block;
+      }
 
-  .next-round-btn, .final-btn{
-    padding:15px 30px;
-    border-radius:999px;
-    font-weight:800;
-    font-size:15px;
-    background:var(--amber);
-    color:#171A21;
-    box-shadow:0 10px 24px rgba(233,180,76,0.35);
-    margin:6px;
-    transition:transform .15s ease;
-  }
-  .next-round-btn:hover, .final-btn:hover{ transform:translateY(-2px); }
-  .final-btn.secondary{
-    background:var(--surface-alt);
-    color:var(--text);
-    border:1px solid var(--border);
-  }
+      .next-round-btn,
+      .final-btn {
+        padding: 15px 30px;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 15px;
+        background: var(--amber);
+        color: #171a21;
+        box-shadow: 0 10px 24px rgba(233, 180, 76, 0.35);
+        margin: 6px;
+        transition: transform 0.15s ease;
+      }
+      .next-round-btn:hover,
+      .final-btn:hover {
+        transform: translateY(-2px);
+      }
+      .final-btn.secondary {
+        background: var(--surface-alt);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
 
-  /* confetti */
-  .confetti-piece{
-    position:absolute;
-    top:-20px;
-    width:10px;height:16px;
-    opacity:.9;
-    z-index:1;
-    animation:confettiFall linear forwards;
-  }
-  @keyframes confettiFall{
-    0%{ transform:translateY(0) rotate(0deg); opacity:1; }
-    100%{ transform:translateY(110vh) rotate(540deg); opacity:0.8; }
-  }
+      /* confetti */
+      .confetti-piece {
+        position: absolute;
+        top: -20px;
+        width: 10px;
+        height: 16px;
+        opacity: 0.9;
+        z-index: 1;
+        animation: confettiFall linear forwards;
+      }
+      @keyframes confettiFall {
+        0% {
+          transform: translateY(0) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(110vh) rotate(540deg);
+          opacity: 0.8;
+        }
+      }
 
-  @media (max-width:820px){
-    .board-wrap{ flex-direction:column; align-items:center; }
-    .image-card{ width:92vw; }
-    .game-header{ flex-direction:column; align-items:flex-start; }
-  }
-</style>
-</head>
-<body class="light">
-
-<!-- ============================================================
+      @media (max-width: 820px) {
+        .board-wrap {
+          flex-direction: column;
+          align-items: center;
+        }
+        .image-card {
+          width: 92vw;
+        }
+        .game-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body class="light">
+    <!-- ============================================================
      UTILITY BAR: mode toggle + fullscreen
      ============================================================ -->
-<div class="util-bar">
-  <button class="util-btn" id="modeToggleBtn" title="Toggle light/dark mode">🌙</button>
-  <button class="util-btn" id="fullscreenBtn" title="Toggle fullscreen">⛶</button>
-</div>
+    <div class="util-bar">
+      <button
+        class="util-btn"
+        id="modeToggleBtn"
+        title="Toggle light/dark mode"
+      >
+        🌙
+      </button>
+      <button class="util-btn" id="fullscreenBtn" title="Toggle fullscreen">
+        ⛶
+      </button>
+    </div>
 
-<!-- ============================================================
+    <!-- ============================================================
      SETUP SCREEN
      ============================================================ -->
-<section class="screen active" id="setup-screen">
-  <div class="setup-card">
-    <div class="setup-eyebrow">Workplace Event Game</div>
-    <h1 class="setup-title">Workplace Feud</h1>
-    <p class="setup-sub">Two teams compete to uncover the most popular workplace survey answers.</p>
+    <section class="screen active" id="setup-screen">
+      <div class="setup-card">
+        <div class="setup-eyebrow">Workplace Event Game</div>
+        <h1 class="setup-title">Workplace Feud</h1>
+        <p class="setup-sub">
+          Two teams compete to uncover the most popular workplace survey
+          answers.
+        </p>
 
-    <div class="field-label">Team 1</div>
-    <div class="team-row">
-      <input type="text" id="team1Name" placeholder="Enter Team 1 name" maxlength="24">
-      <input type="color" id="team1Color" value="#3F8CFF">
-    </div>
+        <div class="field-label">Team 1</div>
+        <div class="team-row">
+          <input
+            type="text"
+            id="team1Name"
+            placeholder="Enter Team 1 name"
+            maxlength="24"
+          />
+          <input type="color" id="team1Color" value="#3F8CFF" />
+        </div>
 
-    <div class="field-label">Team 2</div>
-    <div class="team-row">
-      <input type="text" id="team2Name" placeholder="Enter Team 2 name" maxlength="24">
-      <input type="color" id="team2Color" value="#E9573F">
-    </div>
+        <div class="field-label">Team 2</div>
+        <div class="team-row">
+          <input
+            type="text"
+            id="team2Name"
+            placeholder="Enter Team 2 name"
+            maxlength="24"
+          />
+          <input type="color" id="team2Color" value="#E9573F" />
+        </div>
 
-    <div class="field-label">Display Mode</div>
-    <div class="mode-toggle-row">
-      <button class="mode-choice selected" id="lightModeBtn" type="button">☀️ Light Mode</button>
-      <button class="mode-choice" id="darkModeBtn" type="button">🌙 Dark Mode</button>
-    </div>
+        <div class="field-label">Display Mode</div>
+        <div class="mode-toggle-row">
+          <button class="mode-choice selected" id="lightModeBtn" type="button">
+            ☀️ Light Mode
+          </button>
+          <button class="mode-choice" id="darkModeBtn" type="button">
+            🌙 Dark Mode
+          </button>
+        </div>
 
-    <button class="start-btn" id="startGameBtn">Start Game</button>
-  </div>
-</section>
+        <button class="start-btn" id="startGameBtn">Start Game</button>
+      </div>
+    </section>
 
-<!-- ============================================================
+    <!-- ============================================================
      GAME SCREEN
      ============================================================ -->
-<section class="screen" id="game-screen">
-  <div class="game-header">
-    <div class="round-badge">
-      <div class="rb-eyebrow" id="roundEyebrow">Round 1 / 3</div>
-      <div class="rb-title" id="roundTitle">Easy</div>
-    </div>
-    <div class="scoreboard" id="scoreboard"><!-- filled by JS --></div>
-    <div class="diffs-left" id="pointsAvailable">Higher answers earn more points</div>
-  </div>
+    <section class="screen" id="game-screen">
+      <div class="game-header">
+        <div class="round-badge">
+          <div class="rb-eyebrow" id="roundEyebrow">Round 1 / 3</div>
+          <div class="rb-title" id="roundTitle">Easy</div>
+        </div>
+        <div class="scoreboard" id="scoreboard"><!-- filled by JS --></div>
+        <div class="diffs-left" id="pointsAvailable">
+          Higher answers earn more points
+        </div>
+      </div>
 
-  <div class="game-controls">
-    <button class="ctrl-btn primary" id="revealTileBtn">Reveal & Award Team</button>
-  </div>
+      <div class="game-controls">
+        <button class="ctrl-btn primary" id="revealTileBtn">
+          Reveal & Award Team
+        </button>
+      </div>
 
-  <div class="active-team-banner" id="cluePanel">Select a hidden answer, then award it to the team that answered.</div>
-  <div class="feud-board" id="tileGrid"></div>
-  <div class="game-controls">
-    <button class="ctrl-btn danger" id="revealAllBtn">Reveal Remaining & End Round</button>
-  </div>
-</section>
+      <div class="active-team-banner" id="cluePanel">
+        Select a hidden answer, then award it to the team that answered.
+      </div>
+      <div class="feud-board" id="tileGrid"></div>
+      <div class="game-controls">
+        <button class="ctrl-btn danger" id="revealAllBtn">
+          Reveal Remaining & End Round
+        </button>
+      </div>
+    </section>
 
-<!-- ============================================================
+    <!-- ============================================================
      ROUND RESULT SCREEN
      ============================================================ -->
-<section class="screen" id="round-result-screen">
-  <div class="result-card">
-    <div class="result-eyebrow">Round Complete</div>
-    <div class="result-winner" id="roundResultWinner">Team wins the round!</div>
-    <div class="result-scores" id="roundResultScores"><!-- filled by JS --></div>
-    <button class="next-round-btn" id="nextRoundBtn">Next Round</button>
-  </div>
-</section>
+    <section class="screen" id="round-result-screen">
+      <div class="result-card">
+        <div class="result-eyebrow">Round Complete</div>
+        <div class="result-winner" id="roundResultWinner">
+          Team wins the round!
+        </div>
+        <div class="result-scores" id="roundResultScores">
+          <!-- filled by JS -->
+        </div>
+        <button class="next-round-btn" id="nextRoundBtn">Next Round</button>
+      </div>
+    </section>
 
-<!-- ============================================================
+    <!-- ============================================================
      FINAL WINNER SCREEN
      ============================================================ -->
-<section class="screen" id="final-screen">
-  <div class="result-card">
-    <span class="trophy-emoji">🏆</span>
-    <div class="result-eyebrow">Game Over</div>
-    <div class="result-winner" id="finalWinnerText">Champion!</div>
-    <p id="finalMessage" style="color:var(--text-dim); margin-bottom:20px; font-size:15px;"></p>
-    <div class="result-scores" id="finalScores"><!-- filled by JS --></div>
-    <div>
-      <button class="final-btn" id="playAgainBtn">Play Again</button>
-      <button class="final-btn secondary" id="backToSetupBtn">Back to Setup</button>
-    </div>
-  </div>
-</section>
+    <section class="screen" id="final-screen">
+      <div class="result-card">
+        <span class="trophy-emoji">🏆</span>
+        <div class="result-eyebrow">Game Over</div>
+        <div class="result-winner" id="finalWinnerText">Champion!</div>
+        <p
+          id="finalMessage"
+          style="color: var(--text-dim); margin-bottom: 20px; font-size: 15px"
+        ></p>
+        <div class="result-scores" id="finalScores"><!-- filled by JS --></div>
+        <div>
+          <button class="final-btn" id="playAgainBtn">Play Again</button>
+          <button class="final-btn secondary" id="backToSetupBtn">
+            Back to Setup
+          </button>
+        </div>
+      </div>
+    </section>
 
-<!-- ============================================================
+    <!-- ============================================================
      "WHICH TEAM FOUND IT?" MODAL
      ============================================================ -->
-<div class="modal-overlay" id="teamPickModal">
-  <div class="modal-card">
-    <h3>Who answered correctly?</h3>
-    <div class="team-pick-row" id="teamPickRow"><!-- filled by JS --></div>
-  </div>
-</div>
+    <div class="modal-overlay" id="teamPickModal">
+      <div class="modal-card">
+        <h3>Who answered correctly?</h3>
+        <div class="team-pick-row" id="teamPickRow"><!-- filled by JS --></div>
+      </div>
+    </div>
 
-<!-- catch message toast -->
-<div class="catch-toast" id="catchToast"></div>
+    <!-- catch message toast -->
+    <div class="catch-toast" id="catchToast"></div>
 
-<script>
-if (false) {
-/* =====================================================================
+    <script>
+      if (false) {
+        /* =====================================================================
    GAME DATA
    ---------------------------------------------------------------------
    REPLACE IMAGES HERE:
@@ -733,994 +922,1281 @@ if (false) {
    Update these x/y values to match the exact pixel location (as a %)
    of each real difference in your own images.
    ===================================================================== */
-const roundsData = [
-  {
-    title: "Round 1",
-    difficultyLabel: "Easy",
-    // --- REPLACE IMAGE URLS HERE (Round 1) ---
-    image1: "https://picsum.photos/id/1076/900/560",
-    image2: "https://picsum.photos/id/1076/900/560",
-    // --- REPLACE DIFFERENCE COORDINATES HERE (Round 1 — 5 differences) ---
-    differences: [
-      { x: 18, y: 22 },
-      { x: 40, y: 65 },
-      { x: 58, y: 30 },
-      { x: 74, y: 78 },
-      { x: 88, y: 40 }
-    ]
-  },
-  {
-    title: "Round 2",
-    difficultyLabel: "Medium",
-    // --- REPLACE IMAGE URLS HERE (Round 2) ---
-    image1: "https://picsum.photos/id/180/900/560",
-    image2: "https://picsum.photos/id/180/900/560",
-    // --- REPLACE DIFFERENCE COORDINATES HERE (Round 2 — 7 differences) ---
-    differences: [
-      { x: 12, y: 15 },
-      { x: 27, y: 50 },
-      { x: 40, y: 80 },
-      { x: 55, y: 25 },
-      { x: 65, y: 60 },
-      { x: 80, y: 20 },
-      { x: 92, y: 70 }
-    ]
-  },
-  {
-    title: "Round 3",
-    difficultyLabel: "Hard",
-    // --- REPLACE IMAGE URLS HERE (Round 3) ---
-    image1: "https://picsum.photos/id/201/900/560",
-    image2: "https://picsum.photos/id/201/900/560",
-    // --- REPLACE DIFFERENCE COORDINATES HERE (Round 3 — 10 differences) ---
-    differences: [
-      { x: 8,  y: 18 },
-      { x: 20, y: 45 },
-      { x: 33, y: 72 },
-      { x: 46, y: 12 },
-      { x: 52, y: 55 },
-      { x: 60, y: 85 },
-      { x: 70, y: 30 },
-      { x: 78, y: 63 },
-      { x: 87, y: 18 },
-      { x: 93, y: 80 }
-    ]
-  }
-];
+        const roundsData = [
+          {
+            title: "Round 1",
+            difficultyLabel: "Easy",
+            // --- REPLACE IMAGE URLS HERE (Round 1) ---
+            image1: "https://picsum.photos/id/1076/900/560",
+            image2: "https://picsum.photos/id/1076/900/560",
+            // --- REPLACE DIFFERENCE COORDINATES HERE (Round 1 — 5 differences) ---
+            differences: [
+              { x: 18, y: 22 },
+              { x: 40, y: 65 },
+              { x: 58, y: 30 },
+              { x: 74, y: 78 },
+              { x: 88, y: 40 },
+            ],
+          },
+          {
+            title: "Round 2",
+            difficultyLabel: "Medium",
+            // --- REPLACE IMAGE URLS HERE (Round 2) ---
+            image1: "https://picsum.photos/id/180/900/560",
+            image2: "https://picsum.photos/id/180/900/560",
+            // --- REPLACE DIFFERENCE COORDINATES HERE (Round 2 — 7 differences) ---
+            differences: [
+              { x: 12, y: 15 },
+              { x: 27, y: 50 },
+              { x: 40, y: 80 },
+              { x: 55, y: 25 },
+              { x: 65, y: 60 },
+              { x: 80, y: 20 },
+              { x: 92, y: 70 },
+            ],
+          },
+          {
+            title: "Round 3",
+            difficultyLabel: "Hard",
+            // --- REPLACE IMAGE URLS HERE (Round 3) ---
+            image1: "https://picsum.photos/id/201/900/560",
+            image2: "https://picsum.photos/id/201/900/560",
+            // --- REPLACE DIFFERENCE COORDINATES HERE (Round 3 — 10 differences) ---
+            differences: [
+              { x: 8, y: 18 },
+              { x: 20, y: 45 },
+              { x: 33, y: 72 },
+              { x: 46, y: 12 },
+              { x: 52, y: 55 },
+              { x: 60, y: 85 },
+              { x: 70, y: 30 },
+              { x: 78, y: 63 },
+              { x: 87, y: 18 },
+              { x: 93, y: 80 },
+            ],
+          },
+        ];
 
-// Radius (in % of image width) within which a click counts as "hitting" a difference marker.
-const HIT_RADIUS_PERCENT = 3.5;
+        // Radius (in % of image width) within which a click counts as "hitting" a difference marker.
+        const HIT_RADIUS_PERCENT = 3.5;
 
-const CATCH_MESSAGES = ["Nice Catch!", "Great Eyes!", "Excellent Observation!", "Brilliant Find!"];
+        const CATCH_MESSAGES = [
+          "Nice Catch!",
+          "Great Eyes!",
+          "Excellent Observation!",
+          "Brilliant Find!",
+        ];
 
-/* =====================================================================
+        /* =====================================================================
    STATE
    ===================================================================== */
-let teams = [
-  { name: "Team 1", color: "#3F8CFF", totalScore: 0, roundScore: 0, roundsWon: 0 },
-  { name: "Team 2", color: "#E9573F", totalScore: 0, roundScore: 0, roundsWon: 0 }
-];
+        let teams = [
+          {
+            name: "Team 1",
+            color: "#3F8CFF",
+            totalScore: 0,
+            roundScore: 0,
+            roundsWon: 0,
+          },
+          {
+            name: "Team 2",
+            color: "#E9573F",
+            totalScore: 0,
+            roundScore: 0,
+            roundsWon: 0,
+          },
+        ];
 
-let currentRoundIndex = 0;
-let foundDifferences = [];   // indices of differences found this round
-let pendingDiffIndex = null; // difference index awaiting team pick
-let solutionShown = false;
+        let currentRoundIndex = 0;
+        let foundDifferences = []; // indices of differences found this round
+        let pendingDiffIndex = null; // difference index awaiting team pick
+        let solutionShown = false;
 
-/* =====================================================================
+        /* =====================================================================
    ELEMENT REFS
    ===================================================================== */
-const screens = {
-  setup: document.getElementById('setup-screen'),
-  game: document.getElementById('game-screen'),
-  roundResult: document.getElementById('round-result-screen'),
-  final: document.getElementById('final-screen')
-};
+        const screens = {
+          setup: document.getElementById("setup-screen"),
+          game: document.getElementById("game-screen"),
+          roundResult: document.getElementById("round-result-screen"),
+          final: document.getElementById("final-screen"),
+        };
 
-function showScreen(name){
-  Object.values(screens).forEach(s => s.classList.remove('active'));
-  screens[name].classList.add('active');
-}
+        function showScreen(name) {
+          Object.values(screens).forEach((s) => s.classList.remove("active"));
+          screens[name].classList.add("active");
+        }
 
-/* ============================ SETUP SCREEN LOGIC ============================ */
-const lightModeBtn = document.getElementById('lightModeBtn');
-const darkModeBtn = document.getElementById('darkModeBtn');
-let selectedMode = 'light';
+        /* ============================ SETUP SCREEN LOGIC ============================ */
+        const lightModeBtn = document.getElementById("lightModeBtn");
+        const darkModeBtn = document.getElementById("darkModeBtn");
+        let selectedMode = "light";
 
-lightModeBtn.addEventListener('click', () => {
-  selectedMode = 'light';
-  lightModeBtn.classList.add('selected');
-  darkModeBtn.classList.remove('selected');
-});
-darkModeBtn.addEventListener('click', () => {
-  selectedMode = 'dark';
-  darkModeBtn.classList.add('selected');
-  lightModeBtn.classList.remove('selected');
-});
+        lightModeBtn.addEventListener("click", () => {
+          selectedMode = "light";
+          lightModeBtn.classList.add("selected");
+          darkModeBtn.classList.remove("selected");
+        });
+        darkModeBtn.addEventListener("click", () => {
+          selectedMode = "dark";
+          darkModeBtn.classList.add("selected");
+          lightModeBtn.classList.remove("selected");
+        });
 
-document.getElementById('startGameBtn').addEventListener('click', () => {
-  const t1name = document.getElementById('team1Name').value.trim() || "Team 1";
-  const t2name = document.getElementById('team2Name').value.trim() || "Team 2";
-  const t1color = document.getElementById('team1Color').value;
-  const t2color = document.getElementById('team2Color').value;
+        document
+          .getElementById("startGameBtn")
+          .addEventListener("click", () => {
+            const t1name =
+              document.getElementById("team1Name").value.trim() || "Team 1";
+            const t2name =
+              document.getElementById("team2Name").value.trim() || "Team 2";
+            const t1color = document.getElementById("team1Color").value;
+            const t2color = document.getElementById("team2Color").value;
 
-  teams = [
-    { name: t1name, color: t1color, totalScore: 0, roundScore: 0, roundsWon: 0 },
-    { name: t2name, color: t2color, totalScore: 0, roundScore: 0, roundsWon: 0 }
-  ];
+            teams = [
+              {
+                name: t1name,
+                color: t1color,
+                totalScore: 0,
+                roundScore: 0,
+                roundsWon: 0,
+              },
+              {
+                name: t2name,
+                color: t2color,
+                totalScore: 0,
+                roundScore: 0,
+                roundsWon: 0,
+              },
+            ];
 
-  document.body.classList.remove('light', 'dark');
-  document.body.classList.add(selectedMode);
-  modeToggleBtn.textContent = selectedMode === 'dark' ? '☀️' : '🌙';
+            document.body.classList.remove("light", "dark");
+            document.body.classList.add(selectedMode);
+            modeToggleBtn.textContent = selectedMode === "dark" ? "☀️" : "🌙";
 
-  currentRoundIndex = 0;
-  startRound(currentRoundIndex);
-  showScreen('game');
-});
+            currentRoundIndex = 0;
+            startRound(currentRoundIndex);
+            showScreen("game");
+          });
 
-/* ============================ MODE TOGGLE / FULLSCREEN (global) ============================ */
-const modeToggleBtn = document.getElementById('modeToggleBtn');
-modeToggleBtn.addEventListener('click', () => {
-  const isDark = document.body.classList.contains('dark');
-  document.body.classList.toggle('dark', !isDark);
-  document.body.classList.toggle('light', isDark);
-  modeToggleBtn.textContent = isDark ? '🌙' : '☀️';
-});
+        /* ============================ MODE TOGGLE / FULLSCREEN (global) ============================ */
+        const modeToggleBtn = document.getElementById("modeToggleBtn");
+        modeToggleBtn.addEventListener("click", () => {
+          const isDark = document.body.classList.contains("dark");
+          document.body.classList.toggle("dark", !isDark);
+          document.body.classList.toggle("light", isDark);
+          modeToggleBtn.textContent = isDark ? "🌙" : "☀️";
+        });
 
-document.getElementById('fullscreenBtn').addEventListener('click', () => {
-  if (!document.fullscreenElement){
-    document.documentElement.requestFullscreen().catch(() => {});
-  } else {
-    document.exitFullscreen();
-  }
-});
+        document
+          .getElementById("fullscreenBtn")
+          .addEventListener("click", () => {
+            if (!document.fullscreenElement) {
+              document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+              document.exitFullscreen();
+            }
+          });
 
-/* ============================ ROUND MANAGEMENT ============================ */
-function startRound(index){
-  const round = roundsData[index];
-  foundDifferences = [];
-  solutionShown = false;
-  teams.forEach(t => t.roundScore = 0);
+        /* ============================ ROUND MANAGEMENT ============================ */
+        function startRound(index) {
+          const round = roundsData[index];
+          foundDifferences = [];
+          solutionShown = false;
+          teams.forEach((t) => (t.roundScore = 0));
 
-  document.getElementById('roundEyebrow').textContent = `Round ${index + 1} / ${roundsData.length}`;
-  document.getElementById('roundTitle').textContent = `${round.difficultyLabel} — ${round.differences.length} Differences`;
-  document.getElementById('gameImage1').src = round.image1;
-  document.getElementById('gameImage2').src = round.image2;
+          document.getElementById("roundEyebrow").textContent =
+            `Round ${index + 1} / ${roundsData.length}`;
+          document.getElementById("roundTitle").textContent =
+            `${round.difficultyLabel} — ${round.differences.length} Differences`;
+          document.getElementById("gameImage1").src = round.image1;
+          document.getElementById("gameImage2").src = round.image2;
 
-  // clear any leftover markers
-  document.querySelectorAll('.diff-marker').forEach(el => el.remove());
+          // clear any leftover markers
+          document
+            .querySelectorAll(".diff-marker")
+            .forEach((el) => el.remove());
 
-  updateScoreboard();
-  updateDiffsLeft();
-}
+          updateScoreboard();
+          updateDiffsLeft();
+        }
 
-function updateScoreboard(){
-  const board = document.getElementById('scoreboard');
-  board.innerHTML = '';
-  teams.forEach(team => {
-    const pill = document.createElement('div');
-    pill.className = 'score-pill';
-    pill.innerHTML = `
+        function updateScoreboard() {
+          const board = document.getElementById("scoreboard");
+          board.innerHTML = "";
+          teams.forEach((team) => {
+            const pill = document.createElement("div");
+            pill.className = "score-pill";
+            pill.innerHTML = `
       <span class="score-dot" style="background:${team.color}"></span>
       <span class="score-name">${escapeHtml(team.name)}</span>
       <span class="score-num">${team.roundScore}</span>
       <span class="score-sub">(Total ${team.totalScore})</span>
     `;
-    board.appendChild(pill);
-  });
-}
+            board.appendChild(pill);
+          });
+        }
 
-function updateDiffsLeft(){
-  const round = roundsData[currentRoundIndex];
-  const remaining = round.differences.length - foundDifferences.length;
-  document.getElementById('diffsLeft').textContent = `${remaining} differences remaining`;
-}
+        function updateDiffsLeft() {
+          const round = roundsData[currentRoundIndex];
+          const remaining = round.differences.length - foundDifferences.length;
+          document.getElementById("diffsLeft").textContent =
+            `${remaining} differences remaining`;
+        }
 
-function escapeHtml(str){
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
+        function escapeHtml(str) {
+          const div = document.createElement("div");
+          div.textContent = str;
+          return div.innerHTML;
+        }
 
-/* ============================ IMAGE CLICK HANDLING ============================ */
-function setupImageClicks(){
-  ['imageCard1', 'imageCard2'].forEach(cardId => {
-    const card = document.getElementById(cardId);
-    card.addEventListener('click', (e) => onImageClick(e, card));
-  });
-}
+        /* ============================ IMAGE CLICK HANDLING ============================ */
+        function setupImageClicks() {
+          ["imageCard1", "imageCard2"].forEach((cardId) => {
+            const card = document.getElementById(cardId);
+            card.addEventListener("click", (e) => onImageClick(e, card));
+          });
+        }
 
-function onImageClick(e, card){
-  if (pendingDiffIndex !== null) return; // waiting on modal decision
+        function onImageClick(e, card) {
+          if (pendingDiffIndex !== null) return; // waiting on modal decision
 
-  const rect = card.getBoundingClientRect();
-  const xPct = ((e.clientX - rect.left) / rect.width) * 100;
-  const yPct = ((e.clientY - rect.top) / rect.height) * 100;
+          const rect = card.getBoundingClientRect();
+          const xPct = ((e.clientX - rect.left) / rect.width) * 100;
+          const yPct = ((e.clientY - rect.top) / rect.height) * 100;
 
-  const round = roundsData[currentRoundIndex];
-  let hitIndex = -1;
+          const round = roundsData[currentRoundIndex];
+          let hitIndex = -1;
 
-  for (let i = 0; i < round.differences.length; i++){
-    if (foundDifferences.includes(i)) continue;
-    const diff = round.differences[i];
-    const dist = Math.hypot(diff.x - xPct, diff.y - yPct);
-    if (dist <= HIT_RADIUS_PERCENT){
-      hitIndex = i;
-      break;
-    }
-  }
+          for (let i = 0; i < round.differences.length; i++) {
+            if (foundDifferences.includes(i)) continue;
+            const diff = round.differences[i];
+            const dist = Math.hypot(diff.x - xPct, diff.y - yPct);
+            if (dist <= HIT_RADIUS_PERCENT) {
+              hitIndex = i;
+              break;
+            }
+          }
 
-  if (hitIndex === -1){
-    // incorrect click: brief flash, no score change
-    flashWrong(card);
-    return;
-  }
+          if (hitIndex === -1) {
+            // incorrect click: brief flash, no score change
+            flashWrong(card);
+            return;
+          }
 
-  // correct difference found — ask which team gets credit
-  pendingDiffIndex = hitIndex;
-  openTeamPickModal();
-}
+          // correct difference found — ask which team gets credit
+          pendingDiffIndex = hitIndex;
+          openTeamPickModal();
+        }
 
-function flashWrong(card){
-  const flash = document.createElement('div');
-  flash.className = 'wrong-flash';
-  card.appendChild(flash);
-  setTimeout(() => flash.remove(), 400);
-}
+        function flashWrong(card) {
+          const flash = document.createElement("div");
+          flash.className = "wrong-flash";
+          card.appendChild(flash);
+          setTimeout(() => flash.remove(), 400);
+        }
 
-/* ============================ TEAM PICK MODAL ============================ */
-const teamPickModal = document.getElementById('teamPickModal');
-const teamPickRow = document.getElementById('teamPickRow');
+        /* ============================ TEAM PICK MODAL ============================ */
+        const teamPickModal = document.getElementById("teamPickModal");
+        const teamPickRow = document.getElementById("teamPickRow");
 
-function openTeamPickModal(){
-  teamPickRow.innerHTML = '';
-  teams.forEach((team, idx) => {
-    const btn = document.createElement('button');
-    btn.className = 'team-pick-btn';
-    btn.style.background = team.color;
-    btn.textContent = team.name;
-    btn.addEventListener('click', () => confirmTeamFound(idx));
-    teamPickRow.appendChild(btn);
-  });
-  teamPickModal.classList.add('show');
-}
+        function openTeamPickModal() {
+          teamPickRow.innerHTML = "";
+          teams.forEach((team, idx) => {
+            const btn = document.createElement("button");
+            btn.className = "team-pick-btn";
+            btn.style.background = team.color;
+            btn.textContent = team.name;
+            btn.addEventListener("click", () => confirmTeamFound(idx));
+            teamPickRow.appendChild(btn);
+          });
+          teamPickModal.classList.add("show");
+        }
 
-function closeTeamPickModal(){
-  teamPickModal.classList.remove('show');
-}
+        function closeTeamPickModal() {
+          teamPickModal.classList.remove("show");
+        }
 
-function confirmTeamFound(teamIdx){
-  if (pendingDiffIndex === null) return;
-  const diffIndex = pendingDiffIndex;
-  const round = roundsData[currentRoundIndex];
-  const diff = round.differences[diffIndex];
+        function confirmTeamFound(teamIdx) {
+          if (pendingDiffIndex === null) return;
+          const diffIndex = pendingDiffIndex;
+          const round = roundsData[currentRoundIndex];
+          const diff = round.differences[diffIndex];
 
-  // award point
-  teams[teamIdx].roundScore += 1;
-  teams[teamIdx].totalScore += 1;
+          // award point
+          teams[teamIdx].roundScore += 1;
+          teams[teamIdx].totalScore += 1;
 
-  // mark as found (prevents double counting)
-  foundDifferences.push(diffIndex);
+          // mark as found (prevents double counting)
+          foundDifferences.push(diffIndex);
 
-  // draw circle on both images using the team's color
-  drawMarker(document.getElementById('imageCard1'), diff, teams[teamIdx].color);
-  drawMarker(document.getElementById('imageCard2'), diff, teams[teamIdx].color);
+          // draw circle on both images using the team's color
+          drawMarker(
+            document.getElementById("imageCard1"),
+            diff,
+            teams[teamIdx].color,
+          );
+          drawMarker(
+            document.getElementById("imageCard2"),
+            diff,
+            teams[teamIdx].color,
+          );
 
-  // feedback message
-  showCatchToast();
+          // feedback message
+          showCatchToast();
 
-  updateScoreboard();
-  updateDiffsLeft();
+          updateScoreboard();
+          updateDiffsLeft();
 
-  pendingDiffIndex = null;
-  closeTeamPickModal();
+          pendingDiffIndex = null;
+          closeTeamPickModal();
 
-  // auto-advance if all differences found
-  if (foundDifferences.length === round.differences.length){
-    setTimeout(() => endRound(), 700);
-  }
-}
+          // auto-advance if all differences found
+          if (foundDifferences.length === round.differences.length) {
+            setTimeout(() => endRound(), 700);
+          }
+        }
 
-function drawMarker(card, diff, color, isSolution){
-  const marker = document.createElement('div');
-  marker.className = 'diff-marker' + (isSolution ? ' solution' : '');
-  marker.style.left = diff.x + '%';
-  marker.style.top = diff.y + '%';
-  if (!isSolution) marker.style.borderColor = color;
-  card.appendChild(marker);
-}
+        function drawMarker(card, diff, color, isSolution) {
+          const marker = document.createElement("div");
+          marker.className = "diff-marker" + (isSolution ? " solution" : "");
+          marker.style.left = diff.x + "%";
+          marker.style.top = diff.y + "%";
+          if (!isSolution) marker.style.borderColor = color;
+          card.appendChild(marker);
+        }
 
-function showCatchToast(){
-  const toast = document.getElementById('catchToast');
-  const msg = CATCH_MESSAGES[Math.floor(Math.random() * CATCH_MESSAGES.length)];
-  toast.textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 1200);
-}
+        function showCatchToast() {
+          const toast = document.getElementById("catchToast");
+          const msg =
+            CATCH_MESSAGES[Math.floor(Math.random() * CATCH_MESSAGES.length)];
+          toast.textContent = msg;
+          toast.classList.add("show");
+          setTimeout(() => toast.classList.remove("show"), 1200);
+        }
 
-// close modal if clicking outside the card (does not count as a decision)
-teamPickModal.addEventListener('click', (e) => {
-  if (e.target === teamPickModal){
-    pendingDiffIndex = null;
-    closeTeamPickModal();
-  }
-});
+        // close modal if clicking outside the card (does not count as a decision)
+        teamPickModal.addEventListener("click", (e) => {
+          if (e.target === teamPickModal) {
+            pendingDiffIndex = null;
+            closeTeamPickModal();
+          }
+        });
 
-/* ============================ SHOW SOLUTION ============================ */
-document.getElementById('showSolutionBtn').addEventListener('click', () => {
-  if (solutionShown) return;
-  solutionShown = true;
-  const round = roundsData[currentRoundIndex];
-  round.differences.forEach((diff, i) => {
-    if (foundDifferences.includes(i)) return; // already marked
-    drawMarker(document.getElementById('imageCard1'), diff, null, true);
-    drawMarker(document.getElementById('imageCard2'), diff, null, true);
-  });
-  // scores remain unchanged — no points awarded
-});
+        /* ============================ SHOW SOLUTION ============================ */
+        document
+          .getElementById("showSolutionBtn")
+          .addEventListener("click", () => {
+            if (solutionShown) return;
+            solutionShown = true;
+            const round = roundsData[currentRoundIndex];
+            round.differences.forEach((diff, i) => {
+              if (foundDifferences.includes(i)) return; // already marked
+              drawMarker(
+                document.getElementById("imageCard1"),
+                diff,
+                null,
+                true,
+              );
+              drawMarker(
+                document.getElementById("imageCard2"),
+                diff,
+                null,
+                true,
+              );
+            });
+            // scores remain unchanged — no points awarded
+          });
 
-/* ============================ END ROUND ============================ */
-document.getElementById('endRoundBtn').addEventListener('click', endRound);
+        /* ============================ END ROUND ============================ */
+        document
+          .getElementById("endRoundBtn")
+          .addEventListener("click", endRound);
 
-function endRound(){
-  const t1 = teams[0], t2 = teams[1];
-  let winnerText;
-  if (t1.roundScore > t2.roundScore){
-    t1.roundsWon += 1;
-    winnerText = `${t1.name} wins the round!`;
-  } else if (t2.roundScore > t1.roundScore){
-    t2.roundsWon += 1;
-    winnerText = `${t2.name} wins the round!`;
-  } else {
-    winnerText = `It's a tie this round!`;
-  }
+        function endRound() {
+          const t1 = teams[0],
+            t2 = teams[1];
+          let winnerText;
+          if (t1.roundScore > t2.roundScore) {
+            t1.roundsWon += 1;
+            winnerText = `${t1.name} wins the round!`;
+          } else if (t2.roundScore > t1.roundScore) {
+            t2.roundsWon += 1;
+            winnerText = `${t2.name} wins the round!`;
+          } else {
+            winnerText = `It's a tie this round!`;
+          }
 
-  document.getElementById('roundResultWinner').textContent = winnerText;
+          document.getElementById("roundResultWinner").textContent = winnerText;
 
-  const scoresBox = document.getElementById('roundResultScores');
-  scoresBox.innerHTML = '';
-  teams.forEach(team => {
-    scoresBox.innerHTML += `
+          const scoresBox = document.getElementById("roundResultScores");
+          scoresBox.innerHTML = "";
+          teams.forEach((team) => {
+            scoresBox.innerHTML += `
       <div class="result-score-item">
         <span class="rs-dot" style="background:${team.color}"></span>
         <span class="rs-num">${team.roundScore}</span>
         <span class="rs-name">${escapeHtml(team.name)}</span>
       </div>`;
-  });
+          });
 
-  showScreen('roundResult');
-  launchConfetti(screens.roundResult);
-}
+          showScreen("roundResult");
+          launchConfetti(screens.roundResult);
+        }
 
-document.getElementById('nextRoundBtn').addEventListener('click', () => {
-  currentRoundIndex += 1;
-  if (currentRoundIndex >= roundsData.length){
-    showFinalScreen();
-  } else {
-    startRound(currentRoundIndex);
-    showScreen('game');
-  }
-});
+        document
+          .getElementById("nextRoundBtn")
+          .addEventListener("click", () => {
+            currentRoundIndex += 1;
+            if (currentRoundIndex >= roundsData.length) {
+              showFinalScreen();
+            } else {
+              startRound(currentRoundIndex);
+              showScreen("game");
+            }
+          });
 
-/* ============================ FINAL WINNER ============================ */
-function showFinalScreen(){
-  const t1 = teams[0], t2 = teams[1];
-  let winner = null;
-  let isTie = false;
+        /* ============================ FINAL WINNER ============================ */
+        function showFinalScreen() {
+          const t1 = teams[0],
+            t2 = teams[1];
+          let winner = null;
+          let isTie = false;
 
-  if (t1.roundsWon > t2.roundsWon) winner = t1;
-  else if (t2.roundsWon > t1.roundsWon) winner = t2;
-  else {
-    // rounds won equal -> tie-break by total score
-    if (t1.totalScore > t2.totalScore) winner = t1;
-    else if (t2.totalScore > t1.totalScore) winner = t2;
-    else isTie = true;
-  }
+          if (t1.roundsWon > t2.roundsWon) winner = t1;
+          else if (t2.roundsWon > t1.roundsWon) winner = t2;
+          else {
+            // rounds won equal -> tie-break by total score
+            if (t1.totalScore > t2.totalScore) winner = t1;
+            else if (t2.totalScore > t1.totalScore) winner = t2;
+            else isTie = true;
+          }
 
-  const winnerTextEl = document.getElementById('finalWinnerText');
-  const messageEl = document.getElementById('finalMessage');
+          const winnerTextEl = document.getElementById("finalWinnerText");
+          const messageEl = document.getElementById("finalMessage");
 
-  if (isTie){
-    winnerTextEl.textContent = "It's a Perfect Tie!";
-    messageEl.textContent = "Both teams showed incredible observation skills. A well-earned draw!";
-  } else {
-    winnerTextEl.textContent = `${winner.name} Takes the Crown!`;
-    messageEl.textContent = "Outstanding focus, sharp eyes, and a well-deserved victory. Congratulations!";
-  }
+          if (isTie) {
+            winnerTextEl.textContent = "It's a Perfect Tie!";
+            messageEl.textContent =
+              "Both teams showed incredible observation skills. A well-earned draw!";
+          } else {
+            winnerTextEl.textContent = `${winner.name} Takes the Crown!`;
+            messageEl.textContent =
+              "Outstanding focus, sharp eyes, and a well-deserved victory. Congratulations!";
+          }
 
-  const finalScoresBox = document.getElementById('finalScores');
-  finalScoresBox.innerHTML = '';
-  teams.forEach(team => {
-    finalScoresBox.innerHTML += `
+          const finalScoresBox = document.getElementById("finalScores");
+          finalScoresBox.innerHTML = "";
+          teams.forEach((team) => {
+            finalScoresBox.innerHTML += `
       <div class="result-score-item">
         <span class="rs-dot" style="background:${team.color}"></span>
         <span class="rs-num">${team.totalScore}</span>
-        <span class="rs-name">${escapeHtml(team.name)} · ${team.roundsWon} round${team.roundsWon === 1 ? '' : 's'} won</span>
+        <span class="rs-name">${escapeHtml(team.name)} · ${team.roundsWon} round${team.roundsWon === 1 ? "" : "s"} won</span>
       </div>`;
-  });
+          });
 
-  showScreen('final');
-  launchConfetti(screens.final);
-}
+          showScreen("final");
+          launchConfetti(screens.final);
+        }
 
-/* ============================ PLAY AGAIN / BACK TO SETUP ============================ */
-document.getElementById('playAgainBtn').addEventListener('click', () => {
-  teams.forEach(t => { t.totalScore = 0; t.roundScore = 0; t.roundsWon = 0; });
-  currentRoundIndex = 0;
-  startRound(currentRoundIndex);
-  showScreen('game');
-});
+        /* ============================ PLAY AGAIN / BACK TO SETUP ============================ */
+        document
+          .getElementById("playAgainBtn")
+          .addEventListener("click", () => {
+            teams.forEach((t) => {
+              t.totalScore = 0;
+              t.roundScore = 0;
+              t.roundsWon = 0;
+            });
+            currentRoundIndex = 0;
+            startRound(currentRoundIndex);
+            showScreen("game");
+          });
 
-document.getElementById('backToSetupBtn').addEventListener('click', () => {
-  showScreen('setup');
-});
+        document
+          .getElementById("backToSetupBtn")
+          .addEventListener("click", () => {
+            showScreen("setup");
+          });
 
-/* ============================ CONFETTI ============================ */
-function launchConfetti(container){
-  const colors = [teams[0].color, teams[1].color, '#E9B44C', '#3FB27F', '#3F8CFF'];
-  for (let i = 0; i < 60; i++){
-    const piece = document.createElement('div');
-    piece.className = 'confetti-piece';
-    piece.style.left = Math.random() * 100 + '%';
-    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-    piece.style.animationDuration = (2 + Math.random() * 2) + 's';
-    piece.style.animationDelay = (Math.random() * 0.6) + 's';
-    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-    container.appendChild(piece);
-    setTimeout(() => piece.remove(), 4500);
-  }
-}
+        /* ============================ CONFETTI ============================ */
+        function launchConfetti(container) {
+          const colors = [
+            teams[0].color,
+            teams[1].color,
+            "#E9B44C",
+            "#3FB27F",
+            "#3F8CFF",
+          ];
+          for (let i = 0; i < 60; i++) {
+            const piece = document.createElement("div");
+            piece.className = "confetti-piece";
+            piece.style.left = Math.random() * 100 + "%";
+            piece.style.background =
+              colors[Math.floor(Math.random() * colors.length)];
+            piece.style.animationDuration = 2 + Math.random() * 2 + "s";
+            piece.style.animationDelay = Math.random() * 0.6 + "s";
+            piece.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+            container.appendChild(piece);
+            setTimeout(() => piece.remove(), 4500);
+          }
+        }
 
-/* ============================ INIT ============================ */
-setupImageClicks();
-}
-</script>
-<script>
-if (false) {
-/*
+        /* ============================ INIT ============================ */
+        setupImageClicks();
+      }
+    </script>
+    <script>
+      if (false) {
+        /*
   إعداد الجولات سهل: غيّر image وanswer وhint فقط.
   يمكن استخدام مسار محلي مثل: images/round1.jpg
 */
-const revealRounds = [
-  {
-    title: "الجولة الأولى",
-    difficultyLabel: "سهلة",
-    image: "https://picsum.photos/id/1015/900/560",
-    answer: "منظر جبلي",
-    hint: "مكان طبيعي مرتفع"
-  },
-  {
-    title: "الجولة الثانية",
-    difficultyLabel: "متوسطة",
-    image: "https://picsum.photos/id/1025/900/560",
-    answer: "كلب",
-    hint: "حيوان أليف"
-  },
-  {
-    title: "الجولة الثالثة",
-    difficultyLabel: "صعبة",
-    image: "https://picsum.photos/id/1043/900/560",
-    answer: "مبنى بجانب الماء",
-    hint: "مكان من صنع الإنسان"
-  }
-];
+        const revealRounds = [
+          {
+            title: "الجولة الأولى",
+            difficultyLabel: "سهلة",
+            image: "https://picsum.photos/id/1015/900/560",
+            answer: "منظر جبلي",
+            hint: "مكان طبيعي مرتفع",
+          },
+          {
+            title: "الجولة الثانية",
+            difficultyLabel: "متوسطة",
+            image: "https://picsum.photos/id/1025/900/560",
+            answer: "كلب",
+            hint: "حيوان أليف",
+          },
+          {
+            title: "الجولة الثالثة",
+            difficultyLabel: "صعبة",
+            image: "https://picsum.photos/id/1043/900/560",
+            answer: "مبنى بجانب الماء",
+            hint: "مكان من صنع الإنسان",
+          },
+        ];
 
-const TILE_COUNT = 12;
-const MAX_POINTS = 5;
-let revealTeams = [
-  { name:"Team 1", color:"#3F8CFF", totalScore:0, roundScore:0, roundsWon:0 },
-  { name:"Team 2", color:"#E9573F", totalScore:0, roundScore:0, roundsWon:0 }
-];
-let revealRoundIndex = 0;
-let revealedCount = 0;
-let revealOrder = [];
-let roundClosed = false;
-let selectedMode = "light";
-const lightModeBtn = document.getElementById("lightModeBtn");
-const darkModeBtn = document.getElementById("darkModeBtn");
+        const TILE_COUNT = 12;
+        const MAX_POINTS = 5;
+        let revealTeams = [
+          {
+            name: "Team 1",
+            color: "#3F8CFF",
+            totalScore: 0,
+            roundScore: 0,
+            roundsWon: 0,
+          },
+          {
+            name: "Team 2",
+            color: "#E9573F",
+            totalScore: 0,
+            roundScore: 0,
+            roundsWon: 0,
+          },
+        ];
+        let revealRoundIndex = 0;
+        let revealedCount = 0;
+        let revealOrder = [];
+        let roundClosed = false;
+        let selectedMode = "light";
+        const lightModeBtn = document.getElementById("lightModeBtn");
+        const darkModeBtn = document.getElementById("darkModeBtn");
 
-const revealScreens = {
-  setup: document.getElementById("setup-screen"),
-  game: document.getElementById("game-screen"),
-  roundResult: document.getElementById("round-result-screen"),
-  final: document.getElementById("final-screen")
-};
+        const revealScreens = {
+          setup: document.getElementById("setup-screen"),
+          game: document.getElementById("game-screen"),
+          roundResult: document.getElementById("round-result-screen"),
+          final: document.getElementById("final-screen"),
+        };
 
-function showRevealScreen(name){
-  Object.values(revealScreens).forEach(screen => screen.classList.remove("active"));
-  revealScreens[name].classList.add("active");
-}
+        function showRevealScreen(name) {
+          Object.values(revealScreens).forEach((screen) =>
+            screen.classList.remove("active"),
+          );
+          revealScreens[name].classList.add("active");
+        }
 
-function safeText(value){
-  const div = document.createElement("div");
-  div.textContent = value;
-  return div.innerHTML;
-}
+        function safeText(value) {
+          const div = document.createElement("div");
+          div.textContent = value;
+          return div.innerHTML;
+        }
 
-document.getElementById("lightModeBtn").addEventListener("click", () => {
-  selectedMode = "light";
-  lightModeBtn.classList.add("selected");
-  darkModeBtn.classList.remove("selected");
-});
-document.getElementById("darkModeBtn").addEventListener("click", () => {
-  selectedMode = "dark";
-  darkModeBtn.classList.add("selected");
-  lightModeBtn.classList.remove("selected");
-});
+        document
+          .getElementById("lightModeBtn")
+          .addEventListener("click", () => {
+            selectedMode = "light";
+            lightModeBtn.classList.add("selected");
+            darkModeBtn.classList.remove("selected");
+          });
+        document.getElementById("darkModeBtn").addEventListener("click", () => {
+          selectedMode = "dark";
+          darkModeBtn.classList.add("selected");
+          lightModeBtn.classList.remove("selected");
+        });
 
-const modeToggleBtn = document.getElementById("modeToggleBtn");
-modeToggleBtn.addEventListener("click", () => {
-  const isDark = document.body.classList.contains("dark");
-  document.body.classList.toggle("dark", !isDark);
-  document.body.classList.toggle("light", isDark);
-  modeToggleBtn.textContent = isDark ? "🌙" : "☀️";
-});
-document.getElementById("fullscreenBtn").addEventListener("click", () => {
-  if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
-  else document.exitFullscreen();
-});
+        const modeToggleBtn = document.getElementById("modeToggleBtn");
+        modeToggleBtn.addEventListener("click", () => {
+          const isDark = document.body.classList.contains("dark");
+          document.body.classList.toggle("dark", !isDark);
+          document.body.classList.toggle("light", isDark);
+          modeToggleBtn.textContent = isDark ? "🌙" : "☀️";
+        });
+        document
+          .getElementById("fullscreenBtn")
+          .addEventListener("click", () => {
+            if (!document.fullscreenElement)
+              document.documentElement.requestFullscreen().catch(() => {});
+            else document.exitFullscreen();
+          });
 
-document.getElementById("startGameBtn").addEventListener("click", () => {
-  revealTeams = [
-    {
-      name: document.getElementById("team1Name").value.trim() || "Team 1",
-      color: document.getElementById("team1Color").value,
-      totalScore:0, roundScore:0, roundsWon:0
-    },
-    {
-      name: document.getElementById("team2Name").value.trim() || "Team 2",
-      color: document.getElementById("team2Color").value,
-      totalScore:0, roundScore:0, roundsWon:0
-    }
-  ];
-  document.body.classList.remove("light", "dark");
-  document.body.classList.add(selectedMode);
-  modeToggleBtn.textContent = selectedMode === "dark" ? "☀️" : "🌙";
-  revealRoundIndex = 0;
-  startRevealRound();
-  showRevealScreen("game");
-});
+        document
+          .getElementById("startGameBtn")
+          .addEventListener("click", () => {
+            revealTeams = [
+              {
+                name:
+                  document.getElementById("team1Name").value.trim() || "Team 1",
+                color: document.getElementById("team1Color").value,
+                totalScore: 0,
+                roundScore: 0,
+                roundsWon: 0,
+              },
+              {
+                name:
+                  document.getElementById("team2Name").value.trim() || "Team 2",
+                color: document.getElementById("team2Color").value,
+                totalScore: 0,
+                roundScore: 0,
+                roundsWon: 0,
+              },
+            ];
+            document.body.classList.remove("light", "dark");
+            document.body.classList.add(selectedMode);
+            modeToggleBtn.textContent = selectedMode === "dark" ? "☀️" : "🌙";
+            revealRoundIndex = 0;
+            startRevealRound();
+            showRevealScreen("game");
+          });
 
-function shuffledTiles(){
-  const items = Array.from({length:TILE_COUNT}, (_, index) => index);
-  for (let i = items.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [items[i], items[j]] = [items[j], items[i]];
-  }
-  return items;
-}
+        function shuffledTiles() {
+          const items = Array.from({ length: TILE_COUNT }, (_, index) => index);
+          for (let i = items.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [items[i], items[j]] = [items[j], items[i]];
+          }
+          return items;
+        }
 
-function availablePoints(){
-  return Math.max(1, MAX_POINTS - Math.floor(revealedCount / 2));
-}
+        function availablePoints() {
+          return Math.max(1, MAX_POINTS - Math.floor(revealedCount / 2));
+        }
 
-function startRevealRound(){
-  const round = revealRounds[revealRoundIndex];
-  revealedCount = 0;
-  revealOrder = shuffledTiles();
-  roundClosed = false;
-  revealTeams.forEach(team => team.roundScore = 0);
-  document.getElementById("roundEyebrow").textContent = `الجولة ${revealRoundIndex + 1} / ${revealRounds.length}`;
-  document.getElementById("roundTitle").textContent = `${round.difficultyLabel} — خمن الصورة`;
-  document.getElementById("gameImage").src = round.image;
-  document.getElementById("cluePanel").className = "clue-panel";
-  document.getElementById("cluePanel").textContent = "اضغط «اعرض التلميح» للمساعدة";
-  document.getElementById("revealTileBtn").disabled = false;
-  document.getElementById("correctAnswerBtn").disabled = false;
-  buildTiles();
-  updateRevealScoreboard();
-  updatePointsAvailable();
-}
+        function startRevealRound() {
+          const round = revealRounds[revealRoundIndex];
+          revealedCount = 0;
+          revealOrder = shuffledTiles();
+          roundClosed = false;
+          revealTeams.forEach((team) => (team.roundScore = 0));
+          document.getElementById("roundEyebrow").textContent =
+            `الجولة ${revealRoundIndex + 1} / ${revealRounds.length}`;
+          document.getElementById("roundTitle").textContent =
+            `${round.difficultyLabel} — خمن الصورة`;
+          document.getElementById("gameImage").src = round.image;
+          document.getElementById("cluePanel").className = "clue-panel";
+          document.getElementById("cluePanel").textContent =
+            "اضغط «اعرض التلميح» للمساعدة";
+          document.getElementById("revealTileBtn").disabled = false;
+          document.getElementById("correctAnswerBtn").disabled = false;
+          buildTiles();
+          updateRevealScoreboard();
+          updatePointsAvailable();
+        }
 
-function buildTiles(){
-  const grid = document.getElementById("tileGrid");
-  grid.innerHTML = "";
-  for (let i = 0; i < TILE_COUNT; i++){
-    const tile = document.createElement("div");
-    tile.className = "cover-tile";
-    tile.dataset.index = i;
-    tile.textContent = "?";
-    grid.appendChild(tile);
-  }
-}
+        function buildTiles() {
+          const grid = document.getElementById("tileGrid");
+          grid.innerHTML = "";
+          for (let i = 0; i < TILE_COUNT; i++) {
+            const tile = document.createElement("div");
+            tile.className = "cover-tile";
+            tile.dataset.index = i;
+            tile.textContent = "?";
+            grid.appendChild(tile);
+          }
+        }
 
-function updateRevealScoreboard(){
-  const board = document.getElementById("scoreboard");
-  board.innerHTML = revealTeams.map(team => `
+        function updateRevealScoreboard() {
+          const board = document.getElementById("scoreboard");
+          board.innerHTML = revealTeams
+            .map(
+              (team) => `
     <div class="score-pill">
       <span class="score-dot" style="background:${team.color}"></span>
       <span class="score-name">${safeText(team.name)}</span>
       <span class="score-num">${team.roundScore}</span>
       <span class="score-sub">(المجموع ${team.totalScore})</span>
-    </div>`).join("");
-}
+    </div>`,
+            )
+            .join("");
+        }
 
-function updatePointsAvailable(){
-  document.getElementById("pointsAvailable").textContent = `${availablePoints()} نقاط متاحة`;
-}
+        function updatePointsAvailable() {
+          document.getElementById("pointsAvailable").textContent =
+            `${availablePoints()} نقاط متاحة`;
+        }
 
-document.getElementById("revealTileBtn").addEventListener("click", () => {
-  if (roundClosed || revealedCount >= TILE_COUNT) return;
-  const tileIndex = revealOrder[revealedCount];
-  document.querySelector(`.cover-tile[data-index="${tileIndex}"]`).classList.add("revealed");
-  revealedCount++;
-  updatePointsAvailable();
-  if (revealedCount >= TILE_COUNT) document.getElementById("revealTileBtn").disabled = true;
-});
+        document
+          .getElementById("revealTileBtn")
+          .addEventListener("click", () => {
+            if (roundClosed || revealedCount >= TILE_COUNT) return;
+            const tileIndex = revealOrder[revealedCount];
+            document
+              .querySelector(`.cover-tile[data-index="${tileIndex}"]`)
+              .classList.add("revealed");
+            revealedCount++;
+            updatePointsAvailable();
+            if (revealedCount >= TILE_COUNT)
+              document.getElementById("revealTileBtn").disabled = true;
+          });
 
-document.getElementById("showHintBtn").addEventListener("click", () => {
-  document.getElementById("cluePanel").textContent = `التلميح: ${revealRounds[revealRoundIndex].hint}`;
-});
+        document.getElementById("showHintBtn").addEventListener("click", () => {
+          document.getElementById("cluePanel").textContent =
+            `التلميح: ${revealRounds[revealRoundIndex].hint}`;
+        });
 
-const teamPickModal = document.getElementById("teamPickModal");
-document.getElementById("correctAnswerBtn").addEventListener("click", () => {
-  if (roundClosed) return;
-  const row = document.getElementById("teamPickRow");
-  row.innerHTML = "";
-  revealTeams.forEach((team, index) => {
-    const button = document.createElement("button");
-    button.className = "team-pick-btn";
-    button.style.background = team.color;
-    button.textContent = team.name;
-    button.addEventListener("click", () => awardRevealPoints(index));
-    row.appendChild(button);
-  });
-  teamPickModal.classList.add("show");
-});
-teamPickModal.addEventListener("click", event => {
-  if (event.target === teamPickModal) teamPickModal.classList.remove("show");
-});
+        const teamPickModal = document.getElementById("teamPickModal");
+        document
+          .getElementById("correctAnswerBtn")
+          .addEventListener("click", () => {
+            if (roundClosed) return;
+            const row = document.getElementById("teamPickRow");
+            row.innerHTML = "";
+            revealTeams.forEach((team, index) => {
+              const button = document.createElement("button");
+              button.className = "team-pick-btn";
+              button.style.background = team.color;
+              button.textContent = team.name;
+              button.addEventListener("click", () => awardRevealPoints(index));
+              row.appendChild(button);
+            });
+            teamPickModal.classList.add("show");
+          });
+        teamPickModal.addEventListener("click", (event) => {
+          if (event.target === teamPickModal)
+            teamPickModal.classList.remove("show");
+        });
 
-function awardRevealPoints(teamIndex){
-  const points = availablePoints();
-  revealTeams[teamIndex].roundScore = points;
-  revealTeams[teamIndex].totalScore += points;
-  teamPickModal.classList.remove("show");
-  finishRevealRound(`${revealTeams[teamIndex].name} أجاب بشكل صحيح!`);
-}
+        function awardRevealPoints(teamIndex) {
+          const points = availablePoints();
+          revealTeams[teamIndex].roundScore = points;
+          revealTeams[teamIndex].totalScore += points;
+          teamPickModal.classList.remove("show");
+          finishRevealRound(`${revealTeams[teamIndex].name} أجاب بشكل صحيح!`);
+        }
 
-document.getElementById("showAnswerBtn").addEventListener("click", () => {
-  if (roundClosed) return;
-  finishRevealRound("لم يحصل أي فريق على نقاط");
-});
+        document
+          .getElementById("showAnswerBtn")
+          .addEventListener("click", () => {
+            if (roundClosed) return;
+            finishRevealRound("لم يحصل أي فريق على نقاط");
+          });
 
-function finishRevealRound(message){
-  roundClosed = true;
-  document.querySelectorAll(".cover-tile").forEach(tile => tile.classList.add("revealed"));
-  const answer = revealRounds[revealRoundIndex].answer;
-  const clue = document.getElementById("cluePanel");
-  clue.className = "clue-panel answer-reveal";
-  clue.textContent = `الإجابة: ${answer}`;
-  document.getElementById("revealTileBtn").disabled = true;
-  document.getElementById("correctAnswerBtn").disabled = true;
-  updateRevealScoreboard();
-  setTimeout(() => showRevealRoundResult(message), 900);
-}
+        function finishRevealRound(message) {
+          roundClosed = true;
+          document
+            .querySelectorAll(".cover-tile")
+            .forEach((tile) => tile.classList.add("revealed"));
+          const answer = revealRounds[revealRoundIndex].answer;
+          const clue = document.getElementById("cluePanel");
+          clue.className = "clue-panel answer-reveal";
+          clue.textContent = `الإجابة: ${answer}`;
+          document.getElementById("revealTileBtn").disabled = true;
+          document.getElementById("correctAnswerBtn").disabled = true;
+          updateRevealScoreboard();
+          setTimeout(() => showRevealRoundResult(message), 900);
+        }
 
-function showRevealRoundResult(message){
-  const best = Math.max(...revealTeams.map(team => team.roundScore));
-  if (best > 0){
-    const winners = revealTeams.filter(team => team.roundScore === best);
-    if (winners.length === 1) winners[0].roundsWon++;
-  }
-  document.getElementById("roundResultWinner").textContent = message;
-  document.getElementById("roundResultScores").innerHTML = revealTeams.map(team => `
+        function showRevealRoundResult(message) {
+          const best = Math.max(...revealTeams.map((team) => team.roundScore));
+          if (best > 0) {
+            const winners = revealTeams.filter(
+              (team) => team.roundScore === best,
+            );
+            if (winners.length === 1) winners[0].roundsWon++;
+          }
+          document.getElementById("roundResultWinner").textContent = message;
+          document.getElementById("roundResultScores").innerHTML = revealTeams
+            .map(
+              (team) => `
     <div class="result-score-item">
       <span class="rs-dot" style="background:${team.color}"></span>
       <span class="rs-num">${team.roundScore}</span>
       <span class="rs-name">${safeText(team.name)}</span>
-    </div>`).join("");
-  showRevealScreen("roundResult");
-  launchRevealConfetti(revealScreens.roundResult);
-}
+    </div>`,
+            )
+            .join("");
+          showRevealScreen("roundResult");
+          launchRevealConfetti(revealScreens.roundResult);
+        }
 
-document.getElementById("nextRoundBtn").addEventListener("click", () => {
-  revealRoundIndex++;
-  if (revealRoundIndex >= revealRounds.length) showRevealFinal();
-  else {
-    startRevealRound();
-    showRevealScreen("game");
-  }
-});
+        document
+          .getElementById("nextRoundBtn")
+          .addEventListener("click", () => {
+            revealRoundIndex++;
+            if (revealRoundIndex >= revealRounds.length) showRevealFinal();
+            else {
+              startRevealRound();
+              showRevealScreen("game");
+            }
+          });
 
-function showRevealFinal(){
-  const sorted = [...revealTeams].sort((a,b) => b.totalScore - a.totalScore);
-  const tied = sorted[0].totalScore === sorted[1].totalScore;
-  document.getElementById("finalWinnerText").textContent = tied ? "تعادل الفريقان!" : `${sorted[0].name} هو البطل!`;
-  document.getElementById("finalMessage").textContent = tied
-    ? "حقق الفريقان النتيجة نفسها."
-    : "تهانينا على سرعة الملاحظة والتخمين!";
-  document.getElementById("finalScores").innerHTML = revealTeams.map(team => `
+        function showRevealFinal() {
+          const sorted = [...revealTeams].sort(
+            (a, b) => b.totalScore - a.totalScore,
+          );
+          const tied = sorted[0].totalScore === sorted[1].totalScore;
+          document.getElementById("finalWinnerText").textContent = tied
+            ? "تعادل الفريقان!"
+            : `${sorted[0].name} هو البطل!`;
+          document.getElementById("finalMessage").textContent = tied
+            ? "حقق الفريقان النتيجة نفسها."
+            : "تهانينا على سرعة الملاحظة والتخمين!";
+          document.getElementById("finalScores").innerHTML = revealTeams
+            .map(
+              (team) => `
     <div class="result-score-item">
       <span class="rs-dot" style="background:${team.color}"></span>
       <span class="rs-num">${team.totalScore}</span>
       <span class="rs-name">${safeText(team.name)} · ${team.roundsWon} جولات</span>
-    </div>`).join("");
-  showRevealScreen("final");
-  launchRevealConfetti(revealScreens.final);
-}
+    </div>`,
+            )
+            .join("");
+          showRevealScreen("final");
+          launchRevealConfetti(revealScreens.final);
+        }
 
-document.getElementById("playAgainBtn").addEventListener("click", () => {
-  revealTeams.forEach(team => { team.totalScore = 0; team.roundScore = 0; team.roundsWon = 0; });
-  revealRoundIndex = 0;
-  startRevealRound();
-  showRevealScreen("game");
-});
-document.getElementById("backToSetupBtn").addEventListener("click", () => showRevealScreen("setup"));
+        document
+          .getElementById("playAgainBtn")
+          .addEventListener("click", () => {
+            revealTeams.forEach((team) => {
+              team.totalScore = 0;
+              team.roundScore = 0;
+              team.roundsWon = 0;
+            });
+            revealRoundIndex = 0;
+            startRevealRound();
+            showRevealScreen("game");
+          });
+        document
+          .getElementById("backToSetupBtn")
+          .addEventListener("click", () => showRevealScreen("setup"));
 
-function launchRevealConfetti(container){
-  const colors = [revealTeams[0].color, revealTeams[1].color, "#E9B44C", "#3FB27F"];
-  for (let i = 0; i < 60; i++){
-    const piece = document.createElement("div");
-    piece.className = "confetti-piece";
-    piece.style.left = Math.random() * 100 + "%";
-    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-    piece.style.animationDuration = (2 + Math.random() * 2) + "s";
-    piece.style.animationDelay = Math.random() * .6 + "s";
-    container.appendChild(piece);
-    setTimeout(() => piece.remove(), 4500);
-  }
-}
-}
-</script>
-<script>
-/* Add or edit rounds here. Answers should be ordered from most to least popular. */
-const feudRounds = [
-  {
-    question: "Name something employees pretend to do when the boss walks by.",
-    answers: [
-      ["Typing fast", 30], ["Reading emails", 25],
-      ["Taking notes", 20], ["Reviewing spreadsheets", 15],
-      ["Staring intently", 10], ["Looking stressed", 5]
-    ]
-  },
-  {
-    question: "Name a reason someone might be late to work.",
-    answers: [
-      ["Heavy traffic", 30], ["Overslept / Alarm failed", 25],
-      ["Flat tire", 20], ["Long CoffeeLine", 15],
-      ["Dropping children off", 10], ["Finding Parking", 5]
-    ]
-  },
-  {
-    question: "Name something in the office that always gives employees a hard time.",
-    answers: [
-      ["AC temperature", 30], ["lizards", 25],
-      ["Slow Wi-Fi", 20], ["Getting permission", 15],
-      ["Meetings", 10], ["Uncomfortable chairs", 5] 
-    ]
-  },
-  {
-    question: "Name something that is always hard to find in the office.",
-    answers: [
-      ["Paper stapler", 30], ["Sharp scissors", 25],
-      ["Clear tape", 20], ["Empty room", 15],
-      ["Working pen", 10], ["Phone charger", 5]
-    ]
-  },
-  {
-    question: "Name something that can make everyone's day at work better.",
-    answers: [
-      ["Free food", 35], ["Early leaving", 25], 
-      ["Good coffee", 20], ["Team praise", 10],
-      ["Canceled meetings", 5], ["Working remotly", 5]
-    ]
-  }
-];
+        function launchRevealConfetti(container) {
+          const colors = [
+            revealTeams[0].color,
+            revealTeams[1].color,
+            "#E9B44C",
+            "#3FB27F",
+          ];
+          for (let i = 0; i < 60; i++) {
+            const piece = document.createElement("div");
+            piece.className = "confetti-piece";
+            piece.style.left = Math.random() * 100 + "%";
+            piece.style.background =
+              colors[Math.floor(Math.random() * colors.length)];
+            piece.style.animationDuration = 2 + Math.random() * 2 + "s";
+            piece.style.animationDelay = Math.random() * 0.6 + "s";
+            container.appendChild(piece);
+            setTimeout(() => piece.remove(), 4500);
+          }
+        }
+      }
+    </script>
+    <script>
+      /* Add or edit rounds here. Answers should be ordered from most to least popular. */
+      const feudRounds = [
+        {
+          question: "What might an intruder do during a cyberattack?",
+          answers: [
+            ["Gather information about the target", 30],
+            ["Gain initial access", 25],
+            ["Escalate privileges", 20],
+            ["Exploit the system", 15],
+            ["Maintain access", 10],
+            ["Cover their tracks", 5],
+          ],
+        },
+        {
+          question:
+            "Which features are important for an effective Intrusion Detection System (IDS)?",
+          answers: [
+            ["Run continually", 30],
+            ["Be fault tolerant", 25],
+            ["Resist subversion", 20],
+            ["Impose minimal system overhead", 15],
+            ["Adapt to system and user changes", 10],
+            ["Allow dynamic reconfiguration", 5],
+          ],
+        },
+        {
+          question:
+            "If a security alert is triggered, what information could be recorded?",
+          answers: [
+            ["Timestamp", 30],
+            ["Source and destination IP addresses", 25],
+            ["Event or alert type", 20],
+            ["Connection or session ID", 15],
+            ["Source and destination ports", 10],
+            ["Number of bytes transmitted", 5],
+          ],
+        },
+        {
+          question: "Name a reason why someone might carry out a cyberattack.",
+          answers: [
+            ["Financial gain / Money", 25],
+            ["Political or social cause", 20],
+            ["Espionage / Gathering information", 15],
+            ["Technical challenge", 10],
+            ["Reputation / Peer-group respect", 5],
+          ],
+        },
+        {
+          question: "Name something a cyber criminal might steal.",
+          answers: [
+            ["Financial credentials", 25],
+            ["Personal identity information", 20],
+            ["Company data", 15],
+            ["Credit card numbers", 10],
+            ["Passwords", 5],
+          ],
+        },
+        {
+          question:
+            "What are the logical components of an Intrusion Detection System (IDS)?",
+          answers: [
+            ["Sensors", 15],
+            ["Analyzers", 10],
+            ["User Interface", 5],
+          ],
+        },
+        {
+          question:
+            "What are the classification approaches used in anomaly detection?",
+          answers: [
+            ["Statistical", 15],
+            ["Knowledge-based", 10],
+            ["Machine-learning", 5],
+          ],
+        },
+        {
+          question: "What are the possible actions of a Snort rule?",
+          answers: [
+            ["Alert", 15],
+            ["Log", 10],
+            ["Pass", 5],
+          ],
+        },
+        {
+          question: "What are honeypots designed to do?",
+          answers: [
+            ["Lure a potential attacker away from critical systems", 15],
+            ["Collect information about the attacker’s activity", 10],
+            [
+              "Encourage the attacker to stay on the system long enough for administrators to respond",
+              5,
+            ],
+          ],
+        },
+      ];
 
-let feudTeams = [];
-let feudRoundIndex = 0;
-let activeTeamIndex = 0;
-let strikes = 0;
-let roundBank = 0;
-let selectedAnswer = null;
-let roundFinished = false;
-let feudRoundResultText = "";
-let feudMode = "light";
+      let feudTeams = [];
+      let feudRoundIndex = 0;
+      let activeTeamIndex = 0;
+      let strikes = 0;
+      let roundBank = 0;
+      let selectedAnswer = null;
+      let roundFinished = false;
+      let feudRoundResultText = "";
+      let feudMode = "light";
 
-const feudScreens = {
-  setup: document.getElementById("setup-screen"),
-  game: document.getElementById("game-screen"),
-  roundResult: document.getElementById("round-result-screen"),
-  final: document.getElementById("final-screen")
-};
-const lightChoice = document.getElementById("lightModeBtn");
-const darkChoice = document.getElementById("darkModeBtn");
-const globalModeButton = document.getElementById("modeToggleBtn");
+      const feudScreens = {
+        setup: document.getElementById("setup-screen"),
+        game: document.getElementById("game-screen"),
+        roundResult: document.getElementById("round-result-screen"),
+        final: document.getElementById("final-screen"),
+      };
+      const lightChoice = document.getElementById("lightModeBtn");
+      const darkChoice = document.getElementById("darkModeBtn");
+      const globalModeButton = document.getElementById("modeToggleBtn");
 
-function showFeudScreen(name){
-  Object.values(feudScreens).forEach(screen => screen.classList.remove("active"));
-  feudScreens[name].classList.add("active");
-}
-function escapeFeudText(value){
-  const element = document.createElement("div");
-  element.textContent = value;
-  return element.innerHTML;
-}
+      function showFeudScreen(name) {
+        Object.values(feudScreens).forEach((screen) =>
+          screen.classList.remove("active"),
+        );
+        feudScreens[name].classList.add("active");
+      }
+      function escapeFeudText(value) {
+        const element = document.createElement("div");
+        element.textContent = value;
+        return element.innerHTML;
+      }
 
-lightChoice.addEventListener("click", () => {
-  feudMode = "light";
-  lightChoice.classList.add("selected");
-  darkChoice.classList.remove("selected");
-});
-darkChoice.addEventListener("click", () => {
-  feudMode = "dark";
-  darkChoice.classList.add("selected");
-  lightChoice.classList.remove("selected");
-});
-globalModeButton.addEventListener("click", () => {
-  const dark = document.body.classList.contains("dark");
-  document.body.classList.toggle("dark", !dark);
-  document.body.classList.toggle("light", dark);
-  globalModeButton.textContent = dark ? "🌙" : "☀️";
-});
-document.getElementById("fullscreenBtn").addEventListener("click", () => {
-  if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
-  else document.exitFullscreen();
-});
+      lightChoice.addEventListener("click", () => {
+        feudMode = "light";
+        lightChoice.classList.add("selected");
+        darkChoice.classList.remove("selected");
+      });
+      darkChoice.addEventListener("click", () => {
+        feudMode = "dark";
+        darkChoice.classList.add("selected");
+        lightChoice.classList.remove("selected");
+      });
+      globalModeButton.addEventListener("click", () => {
+        const dark = document.body.classList.contains("dark");
+        document.body.classList.toggle("dark", !dark);
+        document.body.classList.toggle("light", dark);
+        globalModeButton.textContent = dark ? "🌙" : "☀️";
+      });
+      document.getElementById("fullscreenBtn").addEventListener("click", () => {
+        if (!document.fullscreenElement)
+          document.documentElement.requestFullscreen().catch(() => {});
+        else document.exitFullscreen();
+      });
 
-document.getElementById("startGameBtn").addEventListener("click", () => {
-  feudTeams = [
-    {name:document.getElementById("team1Name").value.trim() || "Team 1", color:document.getElementById("team1Color").value, score:0, roundScore:0, roundsWon:0},
-    {name:document.getElementById("team2Name").value.trim() || "Team 2", color:document.getElementById("team2Color").value, score:0, roundScore:0, roundsWon:0}
-  ];
-  document.body.classList.remove("light", "dark");
-  document.body.classList.add(feudMode);
-  globalModeButton.textContent = feudMode === "dark" ? "☀️" : "🌙";
-  feudRoundIndex = 0;
-  startFeudRound();
-  showFeudScreen("game");
-});
+      document.getElementById("startGameBtn").addEventListener("click", () => {
+        feudTeams = [
+          {
+            name: document.getElementById("team1Name").value.trim() || "Team 1",
+            color: document.getElementById("team1Color").value,
+            score: 0,
+            roundScore: 0,
+            roundsWon: 0,
+          },
+          {
+            name: document.getElementById("team2Name").value.trim() || "Team 2",
+            color: document.getElementById("team2Color").value,
+            score: 0,
+            roundScore: 0,
+            roundsWon: 0,
+          },
+        ];
+        document.body.classList.remove("light", "dark");
+        document.body.classList.add(feudMode);
+        globalModeButton.textContent = feudMode === "dark" ? "☀️" : "🌙";
+        feudRoundIndex = 0;
+        startFeudRound();
+        showFeudScreen("game");
+      });
 
-function startFeudRound(){
-  selectedAnswer = null;
-  roundFinished = false;
-  feudRoundResultText = "";
-  document.getElementById("revealAllBtn").textContent = "Reveal Remaining & End Round";
-  feudTeams.forEach(team => team.roundScore = 0);
-  renderFeudBoard();
-  updateFeudHeader();
-}
+      function startFeudRound() {
+        selectedAnswer = null;
+        roundFinished = false;
+        feudRoundResultText = "";
+        document.getElementById("revealAllBtn").textContent =
+          "Reveal Remaining & End Round";
+        feudTeams.forEach((team) => (team.roundScore = 0));
+        renderFeudBoard();
+        updateFeudHeader();
+      }
 
-function renderFeudBoard(){
-  const round = feudRounds[feudRoundIndex];
-  const board = document.getElementById("tileGrid");
-  board.innerHTML = `<div class="feud-question">${escapeFeudText(round.question)}</div>`;
-  round.answers.forEach(([answer, points], index) => {
-    const row = document.createElement("button");
-    row.className = "feud-answer";
-    row.dataset.index = index;
-    row.innerHTML = `<span class="answer-rank">${index + 1}</span><span class="answer-text">${escapeFeudText(answer)}</span><span class="answer-points">${points}</span>`;
-    row.addEventListener("click", () => selectFeudAnswer(index));
-    board.appendChild(row);
-  });
-}
+      function renderFeudBoard() {
+        const round = feudRounds[feudRoundIndex];
+        const board = document.getElementById("tileGrid");
+        board.innerHTML = `<div class="feud-question">${escapeFeudText(round.question)}</div>`;
+        round.answers.forEach(([answer, points], index) => {
+          const row = document.createElement("button");
+          row.className = "feud-answer";
+          row.dataset.index = index;
+          row.innerHTML = `<span class="answer-rank">${index + 1}</span><span class="answer-text">${escapeFeudText(answer)}</span><span class="answer-points">${points}</span>`;
+          row.addEventListener("click", () => selectFeudAnswer(index));
+          board.appendChild(row);
+        });
+      }
 
-function selectFeudAnswer(index){
-  if (roundFinished) return;
-  const row = document.querySelector(`.feud-answer[data-index="${index}"]`);
-  if (row.classList.contains("revealed")) return;
-  document.querySelectorAll(".feud-answer").forEach(item => item.style.outline = "none");
-  selectedAnswer = index;
-  row.style.outline = "4px solid var(--amber)";
-}
+      function selectFeudAnswer(index) {
+        if (roundFinished) return;
+        const row = document.querySelector(
+          `.feud-answer[data-index="${index}"]`,
+        );
+        if (row.classList.contains("revealed")) return;
+        document
+          .querySelectorAll(".feud-answer")
+          .forEach((item) => (item.style.outline = "none"));
+        selectedAnswer = index;
+        row.style.outline = "4px solid var(--amber)";
+      }
 
-function updateFeudHeader(){
-  document.getElementById("roundEyebrow").textContent = `ROUND ${feudRoundIndex + 1} / ${feudRounds.length}`;
-  document.getElementById("roundTitle").textContent = "Top Survey Answers";
-  document.getElementById("pointsAvailable").textContent = "Higher answers earn more points";
-  document.getElementById("cluePanel").textContent = "Select a hidden answer, then award it to the team that answered.";
-  document.getElementById("scoreboard").innerHTML = feudTeams.map(item => `
+      function updateFeudHeader() {
+        document.getElementById("roundEyebrow").textContent =
+          `ROUND ${feudRoundIndex + 1} / ${feudRounds.length}`;
+        document.getElementById("roundTitle").textContent =
+          "Top Survey Answers";
+        document.getElementById("pointsAvailable").textContent =
+          "Higher answers earn more points";
+        document.getElementById("cluePanel").textContent =
+          "Select a hidden answer, then award it to the team that answered.";
+        document.getElementById("scoreboard").innerHTML = feudTeams
+          .map(
+            (item) => `
     <div class="score-pill">
       <span class="score-dot" style="background:${item.color}"></span>
       <span class="score-name">${escapeFeudText(item.name)}</span>
       <span class="score-num">${item.score}</span>
-    </div>`).join("");
-}
+    </div>`,
+          )
+          .join("");
+      }
 
-document.getElementById("revealTileBtn").addEventListener("click", () => {
-  if (roundFinished || selectedAnswer === null) return;
-  const row = document.querySelector(`.feud-answer[data-index="${selectedAnswer}"]`);
-  if (row.classList.contains("revealed")) return;
-  openFeudTeamPicker();
-});
+      document.getElementById("revealTileBtn").addEventListener("click", () => {
+        if (roundFinished || selectedAnswer === null) return;
+        const row = document.querySelector(
+          `.feud-answer[data-index="${selectedAnswer}"]`,
+        );
+        if (row.classList.contains("revealed")) return;
+        openFeudTeamPicker();
+      });
 
-document.getElementById("revealAllBtn").addEventListener("click", () => {
-  if (!roundFinished) finishFeudRound();
-  else showFeudRoundResult(feudRoundResultText);
-});
+      document.getElementById("revealAllBtn").addEventListener("click", () => {
+        if (!roundFinished) finishFeudRound();
+        else showFeudRoundResult(feudRoundResultText);
+      });
 
-const feudTeamModal = document.getElementById("teamPickModal");
-function openFeudTeamPicker(){
-  const row = document.getElementById("teamPickRow");
-  row.innerHTML = "";
-  feudTeams.forEach((team, teamIndex) => {
-    const button = document.createElement("button");
-    button.className = "team-pick-btn";
-    button.style.background = team.color;
-    button.textContent = team.name;
-    button.addEventListener("click", () => awardSelectedAnswer(teamIndex));
-    row.appendChild(button);
-  });
-  feudTeamModal.classList.add("show");
-}
-feudTeamModal.addEventListener("click", event => {
-  if (event.target === feudTeamModal) feudTeamModal.classList.remove("show");
-});
+      const feudTeamModal = document.getElementById("teamPickModal");
+      function openFeudTeamPicker() {
+        const row = document.getElementById("teamPickRow");
+        row.innerHTML = "";
+        feudTeams.forEach((team, teamIndex) => {
+          const button = document.createElement("button");
+          button.className = "team-pick-btn";
+          button.style.background = team.color;
+          button.textContent = team.name;
+          button.addEventListener("click", () =>
+            awardSelectedAnswer(teamIndex),
+          );
+          row.appendChild(button);
+        });
+        feudTeamModal.classList.add("show");
+      }
+      feudTeamModal.addEventListener("click", (event) => {
+        if (event.target === feudTeamModal)
+          feudTeamModal.classList.remove("show");
+      });
 
-function awardSelectedAnswer(teamIndex){
-  if (selectedAnswer === null || roundFinished) return;
-  const row = document.querySelector(`.feud-answer[data-index="${selectedAnswer}"]`);
-  const answerPoints = feudRounds[feudRoundIndex].answers[selectedAnswer][1];
-  row.classList.add("revealed");
-  row.style.outline = "none";
-  feudTeams[teamIndex].score += answerPoints;
-  feudTeams[teamIndex].roundScore += answerPoints;
-  selectedAnswer = null;
-  feudTeamModal.classList.remove("show");
-  updateFeudHeader();
-  if (!document.querySelectorAll(".feud-answer:not(.revealed)").length) finishFeudRound();
-}
+      function awardSelectedAnswer(teamIndex) {
+        if (selectedAnswer === null || roundFinished) return;
+        const row = document.querySelector(
+          `.feud-answer[data-index="${selectedAnswer}"]`,
+        );
+        const answerPoints =
+          feudRounds[feudRoundIndex].answers[selectedAnswer][1];
+        row.classList.add("revealed");
+        row.style.outline = "none";
+        feudTeams[teamIndex].score += answerPoints;
+        feudTeams[teamIndex].roundScore += answerPoints;
+        selectedAnswer = null;
+        feudTeamModal.classList.remove("show");
+        updateFeudHeader();
+        if (!document.querySelectorAll(".feud-answer:not(.revealed)").length)
+          finishFeudRound();
+      }
 
-function finishFeudRound(){
-  roundFinished = true;
-  document.querySelectorAll(".feud-answer").forEach(row => {
-    row.classList.add("revealed");
-    row.style.outline = "none";
-  });
-  const bestRoundScore = Math.max(...feudTeams.map(team => team.roundScore));
-  const roundWinners = feudTeams.filter(team => team.roundScore === bestRoundScore && bestRoundScore > 0);
-  roundWinners.forEach(team => team.roundsWon++);
-  feudRoundResultText = bestRoundScore === 0 ? "No points scored this round." :
-    roundWinners.length > 1 ? "The round ends in a tie!" : `${roundWinners[0].name} wins the round!`;
-  updateFeudHeader();
-  document.getElementById("revealAllBtn").textContent = "Continue to Round Results";
-}
+      function finishFeudRound() {
+        roundFinished = true;
+        document.querySelectorAll(".feud-answer").forEach((row) => {
+          row.classList.add("revealed");
+          row.style.outline = "none";
+        });
+        const bestRoundScore = Math.max(
+          ...feudTeams.map((team) => team.roundScore),
+        );
+        const roundWinners = feudTeams.filter(
+          (team) => team.roundScore === bestRoundScore && bestRoundScore > 0,
+        );
+        roundWinners.forEach((team) => team.roundsWon++);
+        feudRoundResultText =
+          bestRoundScore === 0
+            ? "No points scored this round."
+            : roundWinners.length > 1
+              ? "The round ends in a tie!"
+              : `${roundWinners[0].name} wins the round!`;
+        updateFeudHeader();
+        document.getElementById("revealAllBtn").textContent =
+          "Continue to Round Results";
+      }
 
-function showFeudRoundResult(resultText){
-  document.getElementById("roundResultWinner").textContent = resultText;
-  document.getElementById("roundResultScores").innerHTML = feudTeams.map(team => `
-    <div class="result-score-item"><span class="rs-dot" style="background:${team.color}"></span><span class="rs-num">${team.score}</span><span class="rs-name">${escapeFeudText(team.name)}</span></div>`).join("");
-  showFeudScreen("roundResult");
-  launchFeudConfetti(feudScreens.roundResult);
-}
+      function showFeudRoundResult(resultText) {
+        document.getElementById("roundResultWinner").textContent = resultText;
+        document.getElementById("roundResultScores").innerHTML = feudTeams
+          .map(
+            (team) => `
+    <div class="result-score-item"><span class="rs-dot" style="background:${team.color}"></span><span class="rs-num">${team.score}</span><span class="rs-name">${escapeFeudText(team.name)}</span></div>`,
+          )
+          .join("");
+        showFeudScreen("roundResult");
+        launchFeudConfetti(feudScreens.roundResult);
+      }
 
-document.getElementById("nextRoundBtn").addEventListener("click", () => {
-  feudRoundIndex++;
-  if (feudRoundIndex >= feudRounds.length) showFeudFinal();
-  else { startFeudRound(); showFeudScreen("game"); }
-});
+      document.getElementById("nextRoundBtn").addEventListener("click", () => {
+        feudRoundIndex++;
+        if (feudRoundIndex >= feudRounds.length) showFeudFinal();
+        else {
+          startFeudRound();
+          showFeudScreen("game");
+        }
+      });
 
-function showFeudFinal(){
-  const sorted = [...feudTeams].sort((a,b) => b.score - a.score);
-  const tie = sorted[0].score === sorted[1].score;
-  document.getElementById("finalWinnerText").textContent = tie ? "It's a Tie!" : `${sorted[0].name} Wins!`;
-  document.getElementById("finalMessage").textContent = tie ? "Both teams finished with the same score." : "Top answers, sharp instincts, and a well-earned victory!";
-  document.getElementById("finalScores").innerHTML = feudTeams.map(team => `
-    <div class="result-score-item"><span class="rs-dot" style="background:${team.color}"></span><span class="rs-num">${team.score}</span><span class="rs-name">${escapeFeudText(team.name)} · ${team.roundsWon} rounds won</span></div>`).join("");
-  showFeudScreen("final");
-  launchFeudConfetti(feudScreens.final);
-}
+      function showFeudFinal() {
+        const sorted = [...feudTeams].sort((a, b) => b.score - a.score);
+        const tie = sorted[0].score === sorted[1].score;
+        document.getElementById("finalWinnerText").textContent = tie
+          ? "It's a Tie!"
+          : `${sorted[0].name} Wins!`;
+        document.getElementById("finalMessage").textContent = tie
+          ? "Both teams finished with the same score."
+          : "Top answers, sharp instincts, and a well-earned victory!";
+        document.getElementById("finalScores").innerHTML = feudTeams
+          .map(
+            (team) => `
+    <div class="result-score-item"><span class="rs-dot" style="background:${team.color}"></span><span class="rs-num">${team.score}</span><span class="rs-name">${escapeFeudText(team.name)} · ${team.roundsWon} rounds won</span></div>`,
+          )
+          .join("");
+        showFeudScreen("final");
+        launchFeudConfetti(feudScreens.final);
+      }
 
-document.getElementById("playAgainBtn").addEventListener("click", () => {
-  feudTeams.forEach(team => { team.score = 0; team.roundScore = 0; team.roundsWon = 0; });
-  feudRoundIndex = 0;
-  startFeudRound();
-  showFeudScreen("game");
-});
-document.getElementById("backToSetupBtn").addEventListener("click", () => showFeudScreen("setup"));
+      document.getElementById("playAgainBtn").addEventListener("click", () => {
+        feudTeams.forEach((team) => {
+          team.score = 0;
+          team.roundScore = 0;
+          team.roundsWon = 0;
+        });
+        feudRoundIndex = 0;
+        startFeudRound();
+        showFeudScreen("game");
+      });
+      document
+        .getElementById("backToSetupBtn")
+        .addEventListener("click", () => showFeudScreen("setup"));
 
-function launchFeudConfetti(container){
-  const colors = [feudTeams[0].color, feudTeams[1].color, "#E9B44C", "#3FB27F"];
-  for (let i = 0; i < 50; i++){
-    const piece = document.createElement("div");
-    piece.className = "confetti-piece";
-    piece.style.left = Math.random() * 100 + "%";
-    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-    piece.style.animationDuration = (2 + Math.random() * 2) + "s";
-    container.appendChild(piece);
-    setTimeout(() => piece.remove(), 4300);
-  }
-}
-</script>
-</body>
+      function launchFeudConfetti(container) {
+        const colors = [
+          feudTeams[0].color,
+          feudTeams[1].color,
+          "#E9B44C",
+          "#3FB27F",
+        ];
+        for (let i = 0; i < 50; i++) {
+          const piece = document.createElement("div");
+          piece.className = "confetti-piece";
+          piece.style.left = Math.random() * 100 + "%";
+          piece.style.background =
+            colors[Math.floor(Math.random() * colors.length)];
+          piece.style.animationDuration = 2 + Math.random() * 2 + "s";
+          container.appendChild(piece);
+          setTimeout(() => piece.remove(), 4300);
+        }
+      }
+    </script>
+  </body>
 </html>
