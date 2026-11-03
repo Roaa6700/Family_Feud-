@@ -1831,11 +1831,11 @@
           question:
             "Which features are important for an effective Intrusion Detection System (IDS)?",
           answers: [
-            ["Run continually", 30],
-            ["Be fault tolerant", 25],
-            ["Resist subversion", 20],
-            ["Impose minimal system overhead", 15],
-            ["Adapt to system and user changes", 10],
+            ["Run continually – Be fault tolerant", 30],
+            ["Resist subversion", 25],
+            ["Impose minimal system overhead", 20],
+            ["Configured according to system security policies – Adapt to changes in systems and users", 15],
+            ["Scale to monitor large numbers of systems – Provide graceful degradation of service", 10],
             ["Allow dynamic reconfiguration", 5],
           ],
         },
@@ -1843,58 +1843,54 @@
           question:
             "If a security alert is triggered, what information could be recorded?",
           answers: [
-            ["Timestamp", 30],
-            ["Source and destination IP addresses", 25],
-            ["Event or alert type", 20],
-            ["Connection or session ID", 15],
-            ["Source and destination ports", 10],
-            ["Number of bytes transmitted", 5],
+            ["Timestamp / Connection or session ID", 30],
+            ["Event or alert type / Rating", 25],
+            ["Network, transport, and application layer protocols / Source and destination IP addresses", 20],
+            ["Source and destination TCP or UDP ports, or ICMP types and codes / Number of bytes transmitted over the connection", 15],
+            ["Decoded payload data / State-related information", 10],
           ],
         },
         {
           question: "Name a reason why someone might carry out a cyberattack.",
           answers: [
-            ["Financial gain / Money", 25],
-            ["Political or social cause", 20],
-            ["Espionage / Gathering information", 15],
-            ["Technical challenge", 10],
-            ["Reputation / Peer-group respect", 5],
+            ["Financial gain / Money", 30],
+            ["Political or social cause", 25],
+            ["Espionage / Gathering information", 20],
+            ["Technical challenge / Reputation / Peer-group respect", 15],
           ],
         },
         {
           question: "Name something a cyber criminal might steal.",
           answers: [
-            ["Financial credentials", 25],
-            ["Personal identity information", 20],
-            ["Company data", 15],
-            ["Credit card numbers", 10],
-            ["Passwords", 5],
+            ["Financial credentials", 30],
+            ["Personal identity information", 25],
+            ["Company data", 20],
           ],
         },
         {
           question:
             "What are the logical components of an Intrusion Detection System (IDS)?",
           answers: [
-            ["Sensors", 15],
-            ["Analyzers", 10],
-            ["User Interface", 5],
+            ["Sensors", 30],
+            ["Analyzers", 25],
+            ["User Interface", 20],
           ],
         },
         {
           question:
             "What are the classification approaches used in anomaly detection?",
           answers: [
-            ["Statistical", 15],
-            ["Knowledge-based", 10],
-            ["Machine-learning", 5],
+            ["Statistical", 30],
+            ["Knowledge-based", 25],
+            ["Machine-learning", 20],
           ],
         },
         {
           question: "What are the possible actions of a Snort rule?",
           answers: [
-            ["Alert", 15],
-            ["Log", 10],
-            ["Pass", 5],
+            ["Alert", 30],
+            ["Log", 25],
+            ["Pass", 20],
           ],
         },
         {
